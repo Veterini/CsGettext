@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bin", "Bin", "{992A40E8-52F7-4665-86FF-4AC803E1B046}"
+	ProjectSection(SolutionItems) = preProject
+		Bin\libgcc_s_sjlj-1.dll = Bin\libgcc_s_sjlj-1.dll
+		Bin\libgomp-1.dll = Bin\libgomp-1.dll
+		Bin\libwinpthread-1.dll = Bin\libwinpthread-1.dll
+		Bin\msgcat.exe = Bin\msgcat.exe
+		Bin\msgcmp.exe = Bin\msgcmp.exe
+		Bin\msgfilter.exe = Bin\msgfilter.exe
+		Bin\msgfmt.exe = Bin\msgfmt.exe
+		Bin\msginit.exe = Bin\msginit.exe
+		Bin\msgmerge.exe = Bin\msgmerge.exe
+		Bin\xgettext.exe = Bin\xgettext.exe
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{D9488184-C97C-41EE-AB44-E6C2E4245828}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CBBFFF55-3C86-44D8-A92E-85690B86FC8F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{6585F750-17A2-4A8D-A21D-CE657B195C75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oodrive.GetText.Classic", "Oodrive.GetText.Classic\Oodrive.GetText.Classic.csproj", "{1FD9E614-862D-4D5F-BBC2-6F81456592E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oodrive.GetText.Classic.Test", "Oodrive.GetText.Classic\Oodrive.GetText.Classic.Test\Oodrive.GetText.Classic.Test.csproj", "{38E3BFF0-F4E4-4636-852B-BD4B9D06FFA2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1FD9E614-862D-4D5F-BBC2-6F81456592E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FD9E614-862D-4D5F-BBC2-6F81456592E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FD9E614-862D-4D5F-BBC2-6F81456592E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FD9E614-862D-4D5F-BBC2-6F81456592E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38E3BFF0-F4E4-4636-852B-BD4B9D06FFA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38E3BFF0-F4E4-4636-852B-BD4B9D06FFA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38E3BFF0-F4E4-4636-852B-BD4B9D06FFA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38E3BFF0-F4E4-4636-852B-BD4B9D06FFA2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1FD9E614-862D-4D5F-BBC2-6F81456592E0} = {D9488184-C97C-41EE-AB44-E6C2E4245828}
+		{38E3BFF0-F4E4-4636-852B-BD4B9D06FFA2} = {CBBFFF55-3C86-44D8-A92E-85690B86FC8F}
+	EndGlobalSection
+EndGlobal
