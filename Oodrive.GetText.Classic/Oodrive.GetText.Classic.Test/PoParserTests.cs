@@ -46,5 +46,45 @@ msgstr """"";
 
             dic.Keys.ShouldBeEquivalentTo(new [] { "Globular Clusters" , "Gaseous Nebulae" , "Planetary Nebulae" });
         }
+
+        [Test]
+        public void TestSimplePoEntryMultipleLines()
+        {
+            var po =
+@"msgid """"
+""No INDI devices(...)""
+"" in the devices menu.""
+msgstr """"
+""Nema INDI uređaja (...)""
+"" u meniju uređaja.""";
+
+            TextReader reader = new StringReader(po);
+            var dic = PoParser.ParseIntoDictionary(reader);
+            dic.Count.Should().Be(1);
+            dic.Keys.FirstOrDefault().Should().Be("No INDI devices(...) in the devices menu.");
+            dic.Values.FirstOrDefault().Should().Be("Nema INDI uređaja (...) u meniju uređaja.");
+        }
+
+
+
+        [Test]
+        public void TestMultipleSameEntriesWithContext()
+        {
+            var po =
+@"msgctxt ""First letter in 'Scope'""
+msgid ""S""
+msgstr """"
+
+#: skycomponents/horizoncomponent.cpp:429
+msgctxt ""South""
+msgid ""S""
+msgstr """"";
+
+            TextReader reader = new StringReader(po);
+            var dic = PoParser.ParseIntoDictionary(reader);
+            dic.Count.Should().Be(2);
+
+            dic.Keys.ShouldBeEquivalentTo(new[] { "S_I18nContext_First letter in 'Scope'", "S_I18nContext_South" });
+        }
     }
 }

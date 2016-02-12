@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using NString;
@@ -7,20 +8,21 @@ namespace Oodrive.GetText.Classic.Resources
 {
     public static class PoParser
     {
+        private static ParserState _state;
+
         /// <summary>
         /// Parses an input po file.
         /// </summary>
         private static void Parse(TextReader reader, IDictionary<string, string> dic)
         {
-            const int stateWaitingKey = 1;
-            const int stateConsumingKey = 2;
-            const int stateConsumingValues = 3;
-
-            var state = stateWaitingKey;
+            SetState(ParserState.WaitingKey);
             var isFuzzy = false;
 
             StringBuilder currentKey = null;
             StringBuilder currentValue = null;
+            StringBuilder currentContext = null;
+            StringBuilder currentPluralKey = null;
+            IDictionary<int,StringBuilder> pluralValues = null;
 
             while (true)
             {
@@ -28,82 +30,121 @@ namespace Oodrive.GetText.Classic.Resources
                 line = line?.Trim();
                 if (line.IsNullOrEmpty())
                 {
-                    if (state == stateConsumingValues &&
-                        currentKey != null &&
-                        currentValue != null &&
-                        !isFuzzy)
+                    if (_state == ParserState.ConsumingValue && !isFuzzy && currentKey != null)
                     {
-                        dic[CleanString(currentKey.ToString())] = CleanString(currentValue.ToString());
+                        SetValuesForKeys(dic, CleanString(currentKey.ToString()), currentPluralKey, currentContext,
+                            currentValue, pluralValues);
+
                         currentKey = null;
                         currentValue = null;
+                        currentContext = null;
+                        currentPluralKey = null;
+                        pluralValues = null;
                     }
 
                     if (line == null)
                         break;
 
-                    state = stateWaitingKey;
+                    SetState(ParserState.WaitingKey);
                     isFuzzy = false;
                     continue;
                 }
 
 
                 var parsingResult = ParseLine(line);
-
-                if (parsingResult?.Type == LineType.Fuzzy)
+                switch (parsingResult?.Type)
                 {
-                    isFuzzy = true;
-                    continue;
-                }
-
-                if (parsingResult?.Type == LineType.Comment)
-                {
-                    continue;
-                }
-
-                var isMsgId = line.StartsWith("msgid ");
-                var isMsgStr = !isMsgId && line.StartsWith("msgstr ");
-
-                if (isMsgId || isMsgStr)
-                {
-                    state = isMsgId ? stateConsumingKey : stateConsumingValues;
-
-                    var firstQuote = line.IndexOf('"');
-                    if (firstQuote == -1)
+                    case LineType.Fuzzy:
+                        isFuzzy = true;
                         continue;
-
-                    var secondQuote = line.IndexOf('"', firstQuote + 1);
-                    while (secondQuote != -1 && line[secondQuote - 1] == '\\')
-                        secondQuote = line.IndexOf('"', secondQuote + 1);
-                    if (secondQuote == -1)
+                    case LineType.Comment:
                         continue;
-
-                    var piece = line.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
-
-                    if (isMsgId)
-                    {
+                    case LineType.Key:
+                        SetState(ParserState.ConsumingKey);
                         currentKey = new StringBuilder();
-                        currentKey.Append(piece);
-                    }
-                    else
-                    {
+                        currentKey.Append(parsingResult.Value);
+                        break;
+                    case LineType.Value:
+                        SetState(ParserState.ConsumingValue);
                         currentValue = new StringBuilder();
-                        currentValue.Append(piece);
-                    }
+                        currentValue.Append(parsingResult.Value);
+                        if (pluralValues != null && parsingResult.PluralForm.HasValue)
+                            pluralValues[parsingResult.PluralForm.Value] = currentValue;
+                        break;
+                    case LineType.PluralKey:
+                        SetState(ParserState.ConsumingPluralKey);
+                        pluralValues = new Dictionary<int, StringBuilder>();
+                        currentPluralKey = new StringBuilder();
+                        currentPluralKey.Append(parsingResult.Value);
+                        break;
+                    case LineType.Context:
+                        SetState(ParserState.ConsumingContext);
+                        currentContext = new StringBuilder();
+                        currentContext.Append(parsingResult.Value);
+                        break;
+                    case LineType.Multiline:
+                        switch (_state)
+                        {
+                            case ParserState.ConsumingKey:
+                                currentKey?.Append(parsingResult.Value);
+                                break;
+                            case ParserState.ConsumingPluralKey:
+                                currentPluralKey?.Append(parsingResult.Value);
+                                break;
+                            case ParserState.ConsumingValue:
+                                currentValue?.Append(parsingResult.Value);
+                                break;
+                            case ParserState.ConsumingContext:
+                                currentContext?.Append(parsingResult.Value);
+                                break;
+                        }
+                        break;
                 }
-                else if (line[0] == '"')
-                {
-                    line = line[line.Length - 1] == '"' ? line.Substring(1, line.Length - 2) : line.Substring(1, line.Length - 1);
+            }
+        }
 
-                    switch (state)
-                    {
-                        case stateConsumingKey:
-                            currentKey?.Append(line);
-                            break;
-                        case stateConsumingValues:
-                            currentValue?.Append(line);
-                            break;
-                    }
-                }
+        private static void SetInDictionary(IDictionary<string, string> dic, string key, string value)
+        {
+            string here;
+            if(dic.TryGetValue(key, out here))
+                throw new ArgumentOutOfRangeException(nameof(key),"This key has already been added, the po file is illformed");
+
+            dic[key] = value;
+        }
+
+        private static void SetValuesForKeys(IDictionary<string, string> dic, string key, StringBuilder currentPluralKey,
+            StringBuilder currentContext, StringBuilder currentValue, IDictionary<int, StringBuilder> pluralValues)
+        {
+            var hasContext = currentContext != null;
+            var hasPlural = currentPluralKey != null && pluralValues != null;
+
+            var value = CleanString(currentValue?.ToString() ?? string.Empty);
+            var ctxValue = CleanString(currentContext?.ToString() ?? string.Empty);
+
+            if (!hasContext && !hasPlural)
+            {
+                SetInDictionary(dic,key,value);
+                return;
+            }
+
+            if (hasContext && !hasPlural)
+            {
+                var ctxKey = $"{key}_I18nContext_{ctxValue}";
+                SetInDictionary(dic, ctxKey,value);
+                return;
+            }
+
+            var pluralKey = CleanString(currentPluralKey.ToString());
+            foreach (var entry in pluralValues)
+            {
+                var ctxKey = !hasContext
+                    ? $"{key}_I18nPluralForm_{entry.Key}"
+                    : $"{key}_I18nPluralForm_{entry.Key}_I18nContext_{ctxValue}";
+                SetInDictionary(dic, ctxKey, CleanString(entry.Value.ToString()));
+                var ctxKey2 = !hasContext
+                    ? $"{pluralKey}_I18nPluralForm_{entry.Key}"
+                    : $"{pluralKey}_I18nPluralForm_{entry.Key}_I18nContext_{ctxValue}";
+                SetInDictionary(dic, ctxKey2, CleanString(entry.Value.ToString()));
             }
         }
 
@@ -114,21 +155,53 @@ namespace Oodrive.GetText.Classic.Resources
                 switch (line[1])
                 {
                     case ',':
-                        return line.Contains("fuzzy") ? new LineParsingResult(LineType.Fuzzy) : new LineParsingResult(LineType.Comment,line.Substring(2).Trim());
+                        return line.Contains("fuzzy") ? new LineParsingResult(LineType.Fuzzy) : new LineParsingResult(LineType.Flag, line.Substring(2).Trim());
                     case ':':
                         return new LineParsingResult(LineType.Position, line.Substring(2).Trim());
+                    case '.':
+                        return new LineParsingResult(LineType.Comment, line.Substring(2).Trim());
+                    case '|':
+                        return new LineParsingResult(LineType.PreviousId, line.Substring(2).Trim());
+                    case '~':
+                        return new LineParsingResult(LineType.Obsolete);
                     default:
                         return new LineParsingResult(LineType.Comment);
                 }
             }
 
-            if (line.StartsWith("msgid "))
+            string value;
+            if (line[0] == '"')
             {
-                var value = ExtractLineValue(line);
-                return new LineParsingResult(LineType.Key,value);
+                value = line[line.Length - 1] == '"' ? line.Substring(1, line.Length - 2) : line.Substring(1, line.Length - 1);
+                return new LineParsingResult(LineType.Multiline, value);
             }
 
-            return null;
+            value = ExtractLineValue(line);
+
+            if (line.StartsWith("msgid "))
+                return new LineParsingResult(LineType.Key, value);
+
+            if (line.StartsWith("msgstr "))
+                return new LineParsingResult(LineType.Value, value);
+
+            if (line.StartsWith("msgctxt "))
+                return new LineParsingResult(LineType.Context, value);
+
+            if (line.StartsWith("msgid_plural "))
+                return new LineParsingResult(LineType.PluralKey, value);
+
+            if (line.StartsWith("msgstr["))
+                return new LineParsingResult(LineType.Value, value, ExtractPluralCount(line));
+
+            return new LineParsingResult(LineType.Undefined);
+        }
+
+        private static int ExtractPluralCount(string line)
+        {
+            var open = line.IndexOf('[');
+            var close = line.IndexOf(']');
+            if (close == -1) throw new ArgumentException(nameof(line));
+            return int.Parse(line.Substring(open + 1, close - open - 1));
         }
 
         private static string ExtractLineValue(string line)
@@ -159,6 +232,11 @@ namespace Oodrive.GetText.Classic.Resources
             return value.Replace("\\n", "\n").Replace("\\\"", "\"");
         }
 
+        private static void SetState(ParserState state)
+        {
+            _state = state;
+        }
+
         enum LineType
         {
             Key,
@@ -168,22 +246,34 @@ namespace Oodrive.GetText.Classic.Resources
             Undefined,
             Fuzzy,
             Context,
-            Position
+            Position,
+            Multiline,
+            Flag,
+            Obsolete,
+            PreviousId
+        }
+
+        enum ParserState
+        {
+            WaitingKey,
+            ConsumingKey,
+            ConsumingPluralKey,
+            ConsumingValue,
+            ConsumingContext,
         }
 
         class LineParsingResult
         {
             public LineType Type { get; }
             public string Value { get; }
-            public int? Count { get; }
+            public int? PluralForm { get; }
 
-            public LineParsingResult(LineType type, string value = null, int? count = null)
+            public LineParsingResult(LineType type, string value = null, int? pluralForm = null)
             {
                 Type = type;
                 Value = value;
-                Count = count;
+                PluralForm = pluralForm;
             }
         }
-           
     }
 }
