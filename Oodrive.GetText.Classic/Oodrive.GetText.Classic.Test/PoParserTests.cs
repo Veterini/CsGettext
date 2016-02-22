@@ -86,5 +86,25 @@ msgstr """"";
 
             dic.Keys.ShouldBeEquivalentTo(new[] { "S_I18nContext_First letter in 'Scope'", "S_I18nContext_South" });
         }
+
+        [Test]
+        public void TestPluralMessages()
+        {
+            var po =
+@"#: mainwindow.cpp:127
+#, kde-format
+msgid ""Time: % 1 second""
+msgid_plural ""Time: %1 seconds""
+msgstr[0] ""Czas: %1 sekunda""
+msgstr[1] ""Czas: %1 sekundy""
+msgstr[2] ""Czas: %1 sekund""";
+
+
+            TextReader reader = new StringReader(po);
+            var dic = PoParser.ParseIntoDictionary(reader);
+            dic.Count.Should().Be(3);
+
+            dic.Keys.ShouldBeEquivalentTo(new[] { "Time: % 1 second_I18nPluralForm_0", "Time: % 1 second_I18nPluralForm_1", "Time: % 1 second_I18nPluralForm_2" });
+        }
     }
 }

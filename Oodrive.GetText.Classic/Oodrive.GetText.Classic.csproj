@@ -74,7 +74,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\FileBasedResourceManager.cs" />
     <Compile Include="Resources\IPluralFormSelector.cs" />
+    <Compile Include="Resources\PluralFormSelectors\BinaryPluralFormSelector.cs" />
     <Compile Include="Resources\PluralFormSelectors\PolishPluralFormSelector.cs" />
+    <Compile Include="Resources\PluralFormSelectors\SingularPluralFormSelector.cs" />
+    <Compile Include="Resources\PluralFormSelectors\UnaryPluralFormSelector.cs" />
     <Compile Include="Resources\PoParser.cs" />
     <Compile Include="Resources\PoResourceManager.cs" />
     <Compile Include="Resources\PoResourceReader.cs" />

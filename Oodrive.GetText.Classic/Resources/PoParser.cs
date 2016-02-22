@@ -134,17 +134,12 @@ namespace Oodrive.GetText.Classic.Resources
                 return;
             }
 
-            var pluralKey = CleanString(currentPluralKey.ToString());
             foreach (var entry in pluralValues)
             {
                 var ctxKey = !hasContext
                     ? $"{key}_I18nPluralForm_{entry.Key}"
                     : $"{key}_I18nPluralForm_{entry.Key}_I18nContext_{ctxValue}";
                 SetInDictionary(dic, ctxKey, CleanString(entry.Value.ToString()));
-                var ctxKey2 = !hasContext
-                    ? $"{pluralKey}_I18nPluralForm_{entry.Key}"
-                    : $"{pluralKey}_I18nPluralForm_{entry.Key}_I18nContext_{ctxValue}";
-                SetInDictionary(dic, ctxKey2, CleanString(entry.Value.ToString()));
             }
         }
 
