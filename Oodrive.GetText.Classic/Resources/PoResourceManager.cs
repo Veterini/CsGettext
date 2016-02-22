@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Configuration;
-using NString;
 
 namespace Oodrive.GetText.Classic.Resources
 {
@@ -66,16 +65,6 @@ namespace Oodrive.GetText.Classic.Resources
             return true;
         }
 
-        internal object GetString(string resourceKey, int? occurence, string context)
-        {
-            if (occurence == null && context.IsNullOrEmpty())
-                return GetString(resourceKey);
-
-
-            //TODO WIP
-            return string.Empty;
-        }
-
         /// <summary>
         /// Creates a new instance retrieving path and fileformat from the specified configuration section.
         /// </summary>
@@ -107,6 +96,23 @@ namespace Oodrive.GetText.Classic.Resources
 
         #endregion
 
+        public object GetStringPlur(string key, string plural, int value)
+        {
+            //TODO WIP
+            throw new NotImplementedException();
+        }
+
+        public object GetStringCtxt(string key, string context)
+        {
+            //TODO WIP
+            throw new NotImplementedException();
+        }
+
+        public object GetStringPlurCtxt(string key, string plural, int value, string context)
+        {
+            //TODO WIP
+            throw new NotImplementedException();
+        }
     }
 
 

@@ -25,6 +25,8 @@ namespace Oodrive.GetText.Classic.Extensions
         [ConstructorArgument("getTextKey")]
         public string GetTextKey { get; set; }
 
+        public string Plural { get; set; }
+
         public int? Occurence { get; set; }
 
         public string Context { get; set; }
@@ -73,11 +75,30 @@ namespace Oodrive.GetText.Classic.Extensions
 
             var resourceManager = GetTextResources.GetResourceManager(rmKey);
 
-            if (resourceManager == null) return $"[{GetTextKey}]";
-            var tempValue = resourceManager.GetString(resourceKey, Occurence, Context);
+            if (resourceManager == null) return GetBaseText(resourceKey);
+
+            object tempValue = string.Empty;
+
+            if(Plural.IsNullOrEmpty() && Context.IsNullOrEmpty())
+                tempValue = resourceManager.GetString(resourceKey);
+
+            if (!Plural.IsNullOrEmpty() && Context.IsNullOrEmpty())
+                tempValue = resourceManager.GetStringPlur(resourceKey, Plural, Occurence ?? -1);
+
+            if (Plural.IsNullOrEmpty() && !Context.IsNullOrEmpty())
+                tempValue = resourceManager.GetStringCtxt(resourceKey,Context);
+
+            if (!Plural.IsNullOrEmpty() && !Context.IsNullOrEmpty())
+                tempValue = resourceManager.GetStringPlurCtxt(resourceKey, Plural, Occurence ?? -1, Context);
+
             var value = Converter?.Convert(tempValue, typeof(string), null, null).ToString() ?? tempValue;
 
-            return value ?? $"[{GetTextKey}]";
+            return value ?? GetBaseText(resourceKey);
+        }
+
+        private string GetBaseText(string resourceKey)
+        {
+            return Plural.IsNullOrEmpty() ? resourceKey : string.Format(resourceKey, Occurence ?? -1);
         }
 
         public void Invalidate(DependencyObject obj)
