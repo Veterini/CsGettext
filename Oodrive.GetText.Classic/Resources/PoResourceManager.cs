@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Globalization;
+using System.Reflection;
+using NString;
 
 namespace Oodrive.GetText.Classic.Resources
 {
-    public class PoResourceManager : FileBasedResourceManager
+    public class PoResourceManager : LocalizationAssemblyBasedResourceManager
     {
         #region Defaults
 
-        private const string DefaultFileFormat = "{{culture}}\\{{resource}}.po";
-        private const string DefaultPath = "";
+        private const string DefaultFileFormat = "{{culture}}.{{resource}}.po";
+        private const string DefaultPath = "Resources";
 
         #endregion
 
@@ -19,6 +22,8 @@ namespace Oodrive.GetText.Classic.Resources
         /// Returns the Gettext resource set type used.
         /// </summary>
         public override Type ResourceSetType => typeof(PoResourceSet);
+
+        public CultureInfo Language { get; set; }
 
         #endregion
 
@@ -30,8 +35,9 @@ namespace Oodrive.GetText.Classic.Resources
         /// <param name="name">Name of the resource</param>
         /// <param name="path">Path to retrieve the files from</param>
         /// <param name="fileformat">Format of the file name using {{resource}} and {{culture}} placeholders.</param>
-        public PoResourceManager(string name, string path, string fileformat)
-            : base(name, path, fileformat)
+        /// <param name="localizationAssembly">Assembly used for localization</param>
+        public PoResourceManager(string name, string path, string fileformat, Assembly localizationAssembly)
+            : base(name, path, fileformat, localizationAssembly)
         {
         }
 
@@ -39,8 +45,9 @@ namespace Oodrive.GetText.Classic.Resources
         /// Creates a new instance using local path and "{{culture}}\{{resource}}.po" file format.
         /// </summary>
         /// <param name="name">Name of the resource</param>
-        public PoResourceManager(string name)
-            : base(name, DefaultPath, DefaultFileFormat)
+        /// <param name="localizationAssembly">Assembly used for localization</param>
+        public PoResourceManager(string name, Assembly localizationAssembly)
+            : base(name, DefaultPath, DefaultFileFormat, localizationAssembly)
         {
         }
 
@@ -59,8 +66,8 @@ namespace Oodrive.GetText.Classic.Resources
 
             if (config == null) return false;
 
-            FileFormat = config["fileformat"] ?? FileFormat;
-            FilePath = config["path"] ?? FilePath;
+            ResourceFormat = config["fileformat"] ?? ResourceFormat;
+            ResourcesPath = config["path"] ?? ResourcesPath;
 
             return true;
         }
@@ -72,8 +79,9 @@ namespace Oodrive.GetText.Classic.Resources
         /// <param name="section">Name of the configuration section with fileformat and path settings</param>
         /// <param name="fallbackFileFormat">File format to be used if configuration could not be retrieved</param>
         /// <param name="fallbackPath">Path to be used if configuration could not be retrieved</param>
+        /// <param name="localizationAssembly">Assembly used for localization</param>
         /// <returns>New instance of ResourceManager</returns>
-        public static PoResourceManager CreateFromConfiguration(string name, string section, string fallbackFileFormat = DefaultFileFormat, string fallbackPath = DefaultPath)
+        public static PoResourceManager CreateFromConfiguration(string name, string section, Type stringstype, string fallbackFileFormat = DefaultFileFormat, string fallbackPath = DefaultPath)
         {
             var config = ConfigurationManager.GetSection(section) as NameValueCollection;
 
@@ -91,27 +99,50 @@ namespace Oodrive.GetText.Classic.Resources
                 path = config["path"] ?? fallbackPath;
             }
 
-            return new PoResourceManager(name, path, fileformat);
+
+            var localizationAssembly = stringstype.Assembly;
+            return new PoResourceManager(name, path, fileformat, localizationAssembly);
         }
 
         #endregion
 
-        public object GetStringPlur(string key, string plural, int value)
+        public string GetStringPlur(string key, string plural, int value)
         {
-            //TODO WIP
-            throw new NotImplementedException();
+            var form = GetPluralForm(value);
+            var pluralKey = GetTextKeyGenerator.GetPluralKey(key, form);
+
+            var result = GetString(pluralKey);
+
+            return !result.IsNullOrEmpty() ? result : StringTemplate.Format(value != 1 ? plural : key, new {Occurence = value});
         }
 
-        public object GetStringCtxt(string key, string context)
+        private int GetPluralForm(int value)
         {
-            //TODO WIP
-            throw new NotImplementedException();
+            //TODO work in progress
+            return value%2;
         }
 
-        public object GetStringPlurCtxt(string key, string plural, int value, string context)
+        public string GetStringCtxt(string key, string context)
         {
-            //TODO WIP
-            throw new NotImplementedException();
+            var contextKey = GetTextKeyGenerator.GetContextKey(key, context);
+            var result = GetString(contextKey);
+
+            return !result.IsNullOrEmpty() ? result : key;
+        }
+
+        public string GetStringPlurCtxt(string key, string plural, int value, string context)
+        {
+            var form = GetPluralForm(value);
+            var pluralKey = GetTextKeyGenerator.GetPluralKeyAndContext(key, form, context);
+
+            var result = GetString(pluralKey);
+
+            return !result.IsNullOrEmpty() ? result : StringTemplate.Format(value != 1 ? plural : key, new { Occurence = value });
+        }
+
+        public override string GetString(string name)
+        {
+            return base.GetString(name, Language);
         }
     }
 

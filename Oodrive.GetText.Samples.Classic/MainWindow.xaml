@@ -1,0 +1,12 @@
+﻿<Window x:Class="Oodrive.GetText.Samples.Classic.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gtu="http://www.oodrive.com/gettext/utils"
+        mc:Ignorable="d"
+        Title="{gtu:GetText 'Hello everyone!', Context='whole world'}" Height="350" Width="525">
+    <Grid>
+        
+    </Grid>
+</Window>

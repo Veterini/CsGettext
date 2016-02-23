@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1FD9E614-862D-4D5F-BBC2-6F81456592E0}</ProjectGuid>
+    <ProjectGuid>{9E3F69CC-9623-4941-A04D-3DF51854ECBB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Oodrive.GetText.Classic</RootNamespace>
-    <AssemblyName>Oodrive.GetText.Classic</AssemblyName>
+    <RootNamespace>Oodrive.GetText.Samples.Localization</RootNamespace>
+    <AssemblyName>Oodrive.GetText.Samples.Localization</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,22 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Linq.Extras, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Linq.Extras.1.0.4\lib\dotnet\Linq.Extras.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="NString, Version=1.1.7.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NString.1.1.7\lib\dotnet\NString.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="Pri.LongPath, Version=2.0.24.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Pri.LongPath.2.0.24\lib\net45\Pri.LongPath.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -53,37 +39,32 @@
       <HintPath>..\packages\System.Collections.Immutable.1.1.37\lib\dotnet\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\GetTextExtension.cs" />
-    <Compile Include="Extensions\GetTextResources.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\LocalizationAssemblyBasedResourceManager.cs" />
-    <Compile Include="Resources\GetTextKeyGenerator.cs" />
-    <Compile Include="Resources\IPluralFormSelector.cs" />
-    <Compile Include="Resources\PluralFormSelectors\BinaryPluralFormSelector.cs" />
-    <Compile Include="Resources\PluralFormSelectors\PolishPluralFormSelector.cs" />
-    <Compile Include="Resources\PluralFormSelectors\SingularPluralFormSelector.cs" />
-    <Compile Include="Resources\PluralFormSelectors\UnaryPluralFormSelector.cs" />
-    <Compile Include="Resources\PoParser.cs" />
-    <Compile Include="Resources\PoResourceManager.cs" />
-    <Compile Include="Resources\PoResourceReader.cs" />
-    <Compile Include="Resources\PoResourceSet.cs" />
-    <Compile Include="Resources\ResourceSetCreationEventArgs.cs" />
+    <Compile Include="Strings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Oodrive.GetText.Classic\Oodrive.GetText.Classic.csproj">
+      <Project>{1FD9E614-862D-4D5F-BBC2-6F81456592E0}</Project>
+      <Name>Oodrive.GetText.Classic</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\fr\Strings.po" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ja\Strings.po" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

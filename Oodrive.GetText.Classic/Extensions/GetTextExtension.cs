@@ -98,7 +98,7 @@ namespace Oodrive.GetText.Classic.Extensions
 
         private string GetBaseText(string resourceKey)
         {
-            return Plural.IsNullOrEmpty() ? resourceKey : string.Format(resourceKey, Occurence ?? -1);
+            return Plural.IsNullOrEmpty() ? resourceKey : StringTemplate.Format(resourceKey, new { Occurence = Occurence ?? -1});
         }
 
         public void Invalidate(DependencyObject obj)

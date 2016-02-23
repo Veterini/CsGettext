@@ -129,7 +129,7 @@ namespace Oodrive.GetText.Classic.Resources
 
             if (hasContext && !hasPlural)
             {
-                var ctxKey = $"{key}_I18nContext_{ctxValue}";
+                var ctxKey = GetTextKeyGenerator.GetContextKey(key, ctxValue);
                 SetInDictionary(dic, ctxKey,value);
                 return;
             }
@@ -137,8 +137,8 @@ namespace Oodrive.GetText.Classic.Resources
             foreach (var entry in pluralValues)
             {
                 var ctxKey = !hasContext
-                    ? $"{key}_I18nPluralForm_{entry.Key}"
-                    : $"{key}_I18nPluralForm_{entry.Key}_I18nContext_{ctxValue}";
+                    ? GetTextKeyGenerator.GetPluralKey(key, entry.Key)
+                    : GetTextKeyGenerator.GetPluralKeyAndContext(key, entry.Key, ctxValue);
                 SetInDictionary(dic, ctxKey, CleanString(entry.Value.ToString()));
             }
         }
@@ -147,6 +147,8 @@ namespace Oodrive.GetText.Classic.Resources
         {
             if (line[0] == '#')
             {
+                if (line.Length <= 1) return new LineParsingResult(LineType.Comment);
+
                 switch (line[1])
                 {
                     case ',':

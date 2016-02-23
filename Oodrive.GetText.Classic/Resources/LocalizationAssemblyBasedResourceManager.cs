@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Resources;
+using NString;
 using Path = Pri.LongPath.Path; 
 // ReSharper disable EventNeverSubscribedTo.Global
 
@@ -12,21 +13,23 @@ namespace Oodrive.GetText.Classic.Resources
     /// <summary>
     /// Extendable file based resource manager.
     /// </summary>
-    public class FileBasedResourceManager : ResourceManager
+    public class LocalizationAssemblyBasedResourceManager : ResourceManager
     {
         #region Properties
 
         /// <summary>
-        /// FilePath to retrieve the files from.
+        /// ResourcesPath to retrieve the files from.
         /// </summary>
-        protected string FilePath { get; set; }
+        protected string ResourcesPath { get; set; }
 
         /// <summary>
         /// Format of the resource set po file based on {{culture}} and {{resource}} placeholders.
         /// </summary>
-        protected string FileFormat { get; set; }
+        protected string ResourceFormat { get; set; }
 
         public sealed override bool IgnoreCase { get; set; }
+
+        private Assembly LocalizationAssembly { get; }
 
         private IDictionary<CultureInfo,ResourceSet> InternalResourceSets { get; }
 
@@ -60,26 +63,39 @@ namespace Oodrive.GetText.Classic.Resources
         /// Creates a new instance.
         /// </summary>
         /// <param name="name">Name of the resource</param>
-        /// <param name="filePath">FilePath to retrieve the files from</param>
+        /// <param name="resourcesPath">ResourcesPath to retrieve the files from</param>
         /// <param name="fileformat">Format of the file name using {{resource}} and {{culture}} placeholders.</param>
-        protected FileBasedResourceManager(string name, string filePath, string fileformat)
+        /// <param name="localizationAssembly"></param>
+        protected LocalizationAssemblyBasedResourceManager(string name, string resourcesPath, string fileformat, Assembly localizationAssembly)
         {
-            FilePath = filePath;
-            FileFormat = fileformat;
+            ResourcesPath = resourcesPath;
+            ResourceFormat = fileformat;
             BaseNameField = name;
+            LocalizationAssembly = localizationAssembly;
 
             IgnoreCase = false;
             InternalResourceSets = new Dictionary<CultureInfo, ResourceSet>();
         }
 
-        protected override string GetResourceFileName(CultureInfo culture)
+        private string GetFileResourceName(CultureInfo culture)
         {
-            return FileFormat.Replace("{{culture}}", culture.Name).Replace("{{resource}}", BaseNameField);
+            var baseKey = ResourceFormat.Replace("{{culture}}", culture.Name).Replace("{{resource}}", BaseNameField);
+
+            if (!ResourcesPath.IsNullOrEmpty())
+                baseKey = ResourcesPath + "." + baseKey;
+
+            if (LocalizationAssembly != null)
+            {
+                baseKey = LocalizationAssembly.GetName().Name + "." + baseKey;
+            }
+
+            return baseKey;
         }
+
 
         protected override ResourceSet InternalGetResourceSet(CultureInfo culture, bool createIfNotExists, bool tryParents)
         {
-            if (FilePath == null && FileFormat == null) return null;
+            if (ResourcesPath == null && ResourceFormat == null) return null;
             if (culture == null || culture.Equals(CultureInfo.InvariantCulture)) return null;
 
             ResourceSet rs;
@@ -87,8 +103,8 @@ namespace Oodrive.GetText.Classic.Resources
 
             if (TryFetchResourceSet(resourceSets, culture, out rs)) return rs;
 
-            var resourceFileName = FindResourceFile(culture);
-            if (resourceFileName == null)
+            var resourceFileStream = FindResourceFileStream(culture);
+            if (resourceFileStream == null)
             {
                 if (!tryParents) return rs;
 
@@ -97,66 +113,59 @@ namespace Oodrive.GetText.Classic.Resources
                 AddResourceSet(resourceSets, culture, ref rs);
                 return rs;
             }
-            rs = CreateResourceSet(resourceFileName);
+            rs = CreateResourceSet(resourceFileStream);
             AddResourceSet(resourceSets, culture, ref rs);
             return rs;
         }
 
-        private ResourceSet InternalCreateResourceSet(string resourceFileName)
+        private ResourceSet InternalCreateResourceSet(Stream resourceFileStream)
         {
-            object[] args =  { resourceFileName };
+            object[] args =  { resourceFileStream };
             return (ResourceSet)Activator.CreateInstance(ResourceSetType, args);
         }
 
-        private ResourceSet CreateResourceSet(string resourceFileName)
+        private ResourceSet CreateResourceSet(Stream resourceFileStream)
         {
             ResourceSet set = null;
 
             try
             {
-                set = InternalCreateResourceSet(resourceFileName);
-                RaiseCreatedResourceSet(resourceFileName, set);
+                set = InternalCreateResourceSet(resourceFileStream);
+                RaiseCreatedResourceSet(ResourcesPath, set);
             }
             catch (Exception ex)
             {
-                RaiseFailedResourceSet(resourceFileName, ex);
+                RaiseFailedResourceSet(ResourcesPath, ex);
             }
 
             return set;
         }
 
-        private string FindResourceFile(CultureInfo culture)
+        private Stream FindResourceFileStream(CultureInfo culture)
         {
-            var resourceFileName = GetResourceFileName(culture);
-            var path = FilePath ?? string.Empty;
+            var resourceFileName = GetFileResourceName(culture);
 
-            // Try with simple FilePath + filename combination
-            var fullpath = Path.Combine(path, resourceFileName);
-            if (File.Exists(fullpath)) return fullpath;
-
-            // If FilePath is relative, attempt different directories
-            if (path != string.Empty && Path.IsPathRooted(path)) return null;
-
-            // Try the entry assembly dir
-            string dir;
-            if (Assembly.GetEntryAssembly() != null)
+            Stream loc = null;
+            if (LocalizationAssembly != null)
             {
-                dir = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                    path);
-                fullpath = Path.Combine(dir, resourceFileName);
-                if (File.Exists(fullpath)) return fullpath;
+                loc = LocalizationAssembly.GetManifestResourceStream(resourceFileName);
+
+                if(loc != null) return loc;
             }
 
-            var executingAssembly = Assembly.GetExecutingAssembly();
             var entryAssembly = Assembly.GetEntryAssembly();
-            // Else try the executing assembly dir
-            if (entryAssembly != null &&
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) ==
-                Path.GetDirectoryName(executingAssembly.Location)) return null;
+            // Try the entry assembly dir
+            loc = entryAssembly?.GetManifestResourceStream(resourceFileName);
 
-            dir = Path.Combine(Path.GetDirectoryName(executingAssembly.Location), path);
-            fullpath = Path.Combine(dir, resourceFileName);
-            return File.Exists(fullpath) ? fullpath : null;
+            if (loc != null)
+                return loc;
+
+            var executingAssembly = Assembly.GetExecutingAssembly();
+
+            // Else try the executing assembly dir
+            loc = executingAssembly?.GetManifestResourceStream(resourceFileName);
+
+            return loc;
         }
 
         private static void AddResourceSet(IDictionary<CultureInfo, ResourceSet> localResourceSets, CultureInfo culture, ref ResourceSet rs)

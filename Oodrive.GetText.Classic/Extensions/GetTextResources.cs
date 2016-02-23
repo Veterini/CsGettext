@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Resources;
 using System.Windows;
 using Oodrive.GetText.Classic.Resources;
@@ -25,10 +26,30 @@ namespace Oodrive.GetText.Classic.Extensions
 
         private static readonly Dictionary<string, PoResourceManager> PoResourceManagers = new Dictionary<string, PoResourceManager>();
 
-        public static void AddResourceManager(string key, PoResourceManager resourceManager)
+        public static void AddResourceManager(string key, Type stringsType)
         {
+            var field = stringsType.GetProperty("Key");
+            field.SetValue(null, key);
+            var resourceManager = PoResourceManager.CreateFromConfiguration("Strings", "getText", stringsType);
             PoResourceManagers.Add(key, resourceManager);
             Invalidate();
+        }
+
+        private static CultureInfo _language;
+        public static CultureInfo Language {
+            get { return _language; }
+            set
+            {
+                if (Equals(_language, value)) return;
+
+                _language = value;
+
+                foreach (var poResourceManager in PoResourceManagers.Values)
+                {
+                    poResourceManager.Language = _language;
+                }
+                Invalidate();
+            }
         }
 
         public static void RemoveResourceManager(string key)
