@@ -106,14 +106,14 @@ namespace Oodrive.GetText.Classic.Resources
 
         #endregion
 
-        public string GetStringPlur(string key, string plural, int value)
+        public string GetStringPlur(string key, string plural, int value, object parameters = null)
         {
             var form = GetPluralForm(value);
             var pluralKey = GetTextKeyGenerator.GetPluralKey(key, form);
 
             var result = GetString(pluralKey);
-
-            return !result.IsNullOrEmpty() ? result : StringTemplate.Format(value != 1 ? plural : key, new {Occurence = value});
+            var values = parameters.AddProperty("Occurence", value);
+            return StringTemplate.Format(!result.IsNullOrEmpty() ? result : value != 1 ? plural : key, values);
         }
 
         private int GetPluralForm(int value)
@@ -122,22 +122,24 @@ namespace Oodrive.GetText.Classic.Resources
             return value%2;
         }
 
-        public string GetStringCtxt(string key, string context)
+        public string GetStringCtxt(string key, string context, object parameters = null)
         {
             var contextKey = GetTextKeyGenerator.GetContextKey(key, context);
             var result = GetString(contextKey);
 
-            return !result.IsNullOrEmpty() ? result : key;
+            var str = !result.IsNullOrEmpty() ? result : key;
+            return parameters != null ? StringTemplate.Format(str, parameters) : str;
         }
 
-        public string GetStringPlurCtxt(string key, string plural, int value, string context)
+        public string GetStringPlurCtxt(string key, string plural, int value, string context, object parameters = null)
         {
             var form = GetPluralForm(value);
             var pluralKey = GetTextKeyGenerator.GetPluralKeyAndContext(key, form, context);
 
             var result = GetString(pluralKey);
+            var values = parameters.AddProperty("Occurence", value);
 
-            return !result.IsNullOrEmpty() ? result : StringTemplate.Format(value != 1 ? plural : key, new { Occurence = value });
+            return StringTemplate.Format(!result.IsNullOrEmpty() ? result : value != 1 ? plural : key, values);
         }
 
         public override string GetString(string name)

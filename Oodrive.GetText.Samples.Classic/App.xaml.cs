@@ -13,7 +13,7 @@ namespace Oodrive.GetText.Samples.Classic
         {
             GetTextResources.AddResourceManager("classic", typeof(Localization.Strings));
             GetTextResources.DefaultResourceManagerKey = "classic";
-            GetTextResources.Language = CultureInfo.GetCultureInfo("fr");
+            Localization.Strings.Language = CultureInfo.GetCultureInfo("fr");
         }
     }
 }

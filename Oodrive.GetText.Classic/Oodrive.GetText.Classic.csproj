@@ -69,6 +69,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnonymousTypeExtensions.cs" />
     <Compile Include="Extensions\GetTextExtension.cs" />
     <Compile Include="Extensions\GetTextResources.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
