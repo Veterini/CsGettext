@@ -1,10 +1,27 @@
-﻿
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ assembly name="EnvDTE" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="EnvDTE" #>
+<#@ output extension=".cs" #>
+<#
+    var project = FindProject();
+    string resourceNamespace = project.Name;
+#>
+
 using System.Globalization;
 using NString;
 using Oodrive.GetText.Classic;
 using Oodrive.GetText.Classic.Extensions;
 
-namespace Oodrive.GetText.Samples.Localization
+namespace <#= resourceNamespace #>
 {
     public static class Strings
     {
@@ -54,3 +71,16 @@ namespace Oodrive.GetText.Samples.Localization
     }
 }
 
+<#+
+Project FindProject()
+{
+    IServiceProvider serviceProvider = (IServiceProvider)Host;
+    DTE dte = (DTE)serviceProvider.GetService(typeof(DTE));
+    string templateFileName = Host.TemplateFile;
+    var item = dte.Solution.FindProjectItem(Host.TemplateFile);
+    if (item != null && item.ContainingProject != null)
+        return item.ContainingProject;
+    throw new InvalidOperationException("Can't find project name");
+}
+
+#>
