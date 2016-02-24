@@ -2,16 +2,26 @@
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Linq.Dynamic;
 using System.Reflection;
+using Linq.Extras;
 using NString;
-using DynamicExpression = System.Linq.Expressions.DynamicExpression;
+using Oodrive.GetText.Classic.Resources.PluralFormSelectors;
+using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
 
 namespace Oodrive.GetText.Classic.Resources
 {
     public class PoResourceManager : LocalizationAssemblyBasedResourceManager
     {
+        private static IPluralFormSelector[] _selectors = 
+        {
+           new UnaryPluralFormSelector(),
+           new SingularPluralFormSelector(), 
+           new PolishPluralFormSelector(), 
+           new BinaryPluralFormSelector(),  
+        };
+        
         #region Defaults
 
         private const string DefaultFileFormat = "{{culture}}.{{resource}}.po";
@@ -123,7 +133,7 @@ namespace Oodrive.GetText.Classic.Resources
         {
             var ruleKey = GetTextKeyGenerator.GetPluralFormRuleKey();
             var rule = GetString(ruleKey);
-            if(rule.IsNullOrEmpty() || !rule.StartsWith("nplurals=")) return GetPluralFormFromSelectors(value, Language);
+            if(rule.IsNullOrEmpty() || !rule.StartsWith("nplurals=")) return GetPluralFormFromSelectors(value);
 
             var firstIndex = rule.IndexOf(';');
             firstIndex = rule.IndexOf('=', firstIndex);
@@ -131,7 +141,7 @@ namespace Oodrive.GetText.Classic.Resources
             var formSelectorExpression = rule.Substring(firstIndex + 1, secondIndex - firstIndex - 1).Trim();
 
             var p = Expression.Parameter(typeof(int), "n");
-            var e = System.Linq.Dynamic.DynamicExpression.ParseLambda(new[] { p }, null, formSelectorExpression);
+            var e = DynamicExpression.ParseLambda(new[] { p }, null, formSelectorExpression);
             var result = e.Compile().DynamicInvoke(value);
             var booleanResult = result as bool?;
             if (booleanResult.HasValue) return booleanResult == true ? 1 : 0;
@@ -140,10 +150,11 @@ namespace Oodrive.GetText.Classic.Resources
             return value % 2;
         }
 
-        private int GetPluralFormFromSelectors(int value, CultureInfo language)
+        private int GetPluralFormFromSelectors(int count)
         {
-            //TODO work in progress
-            return value%2;
+            var selector = _selectors.FirstOrDefault(_ => _.ApplicableCultures.Contains(Language));
+
+            return selector?.GetPluralForm(count) ?? (count == 1 ? 0 : 1);
         }
 
         public string GetStringCtxt(string key, string context, object parameters = null)
