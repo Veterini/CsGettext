@@ -99,8 +99,17 @@ namespace Oodrive.GetText.Classic.Resources
                                 break;
                         }
                         break;
+                    case LineType.PluralFormRule:
+                        SetPluralFormRule(dic, CleanString(parsingResult.Value));
+                        break;
                 }
             }
+        }
+
+        private static void SetPluralFormRule(IDictionary<string, string> dic, string rule)
+        {
+            var pluralFormRuleKey = GetTextKeyGenerator.GetPluralFormRuleKey();
+            dic[pluralFormRuleKey] = rule;
         }
 
         private static void SetInDictionary(IDictionary<string, string> dic, string key, string value)
@@ -170,7 +179,7 @@ namespace Oodrive.GetText.Classic.Resources
             if (line[0] == '"')
             {
                 value = line[line.Length - 1] == '"' ? line.Substring(1, line.Length - 2) : line.Substring(1, line.Length - 1);
-                return new LineParsingResult(LineType.Multiline, value);
+                return value.StartsWith("Plural-Forms:") ? new LineParsingResult(LineType.PluralFormRule, value.Substring(13).Trim()) : new LineParsingResult(LineType.Multiline, value);
             }
 
             value = ExtractLineValue(line);
@@ -247,7 +256,8 @@ namespace Oodrive.GetText.Classic.Resources
             Multiline,
             Flag,
             Obsolete,
-            PreviousId
+            PreviousId,
+            PluralFormRule
         }
 
         enum ParserState

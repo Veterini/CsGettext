@@ -2,8 +2,11 @@
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Globalization;
+using System.Linq.Expressions;
+using System.Linq.Dynamic;
 using System.Reflection;
 using NString;
+using DynamicExpression = System.Linq.Expressions.DynamicExpression;
 
 namespace Oodrive.GetText.Classic.Resources
 {
@@ -117,6 +120,27 @@ namespace Oodrive.GetText.Classic.Resources
         }
 
         private int GetPluralForm(int value)
+        {
+            var ruleKey = GetTextKeyGenerator.GetPluralFormRuleKey();
+            var rule = GetString(ruleKey);
+            if(rule.IsNullOrEmpty() || !rule.StartsWith("nplurals=")) return GetPluralFormFromSelectors(value, Language);
+
+            var firstIndex = rule.IndexOf(';');
+            firstIndex = rule.IndexOf('=', firstIndex);
+            var secondIndex = rule.IndexOf(';', firstIndex + 1);
+            var formSelectorExpression = rule.Substring(firstIndex + 1, secondIndex - firstIndex - 1).Trim();
+
+            var p = Expression.Parameter(typeof(int), "n");
+            var e = System.Linq.Dynamic.DynamicExpression.ParseLambda(new[] { p }, null, formSelectorExpression);
+            var result = e.Compile().DynamicInvoke(value);
+            var booleanResult = result as bool?;
+            if (booleanResult.HasValue) return booleanResult == true ? 1 : 0;
+            var integerResult = result as int?;
+            if (integerResult.HasValue) return integerResult.Value;
+            return value % 2;
+        }
+
+        private int GetPluralFormFromSelectors(int value, CultureInfo language)
         {
             //TODO work in progress
             return value%2;
