@@ -15,7 +15,7 @@ Use in WPF:
 
   {gtc:GetText 'My string to be translate'}
   
-  {gtc:GetText 'I have \{Occurence\} string to be translate',Plural='I have \{Occurence\} strings to be translate',Occurence=12}
+  {gtc:GetText 'I have \\{Occurence\\} string to be translate',Plural='I have \\{Occurence\\} strings to be translate',Occurence=12}
   
   {gtc:GetText 'Go', Context='The strategy game'}
   
