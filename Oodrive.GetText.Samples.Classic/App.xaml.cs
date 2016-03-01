@@ -11,9 +11,9 @@ namespace Oodrive.GetText.Samples.Classic
     {
         static App()
         {
-            GetTextResources.AddResourceManager("classic", typeof(Localization.Strings));
+            GetTextResources.AddResourceManager("classic", Localization.Strings.PoResourceManager);
             GetTextResources.DefaultResourceManagerKey = "classic";
-            Localization.Strings.Language = CultureInfo.GetCultureInfo("fr");
+            Localization.Strings.Language = CultureInfo.GetCultureInfo("ja");
         }
     }
 }

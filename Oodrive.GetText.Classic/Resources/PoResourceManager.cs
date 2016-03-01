@@ -95,7 +95,7 @@ namespace Oodrive.GetText.Classic.Resources
         /// <param name="fallbackPath">Path to be used if configuration could not be retrieved</param>
         /// <param name="localizationAssembly">Assembly used for localization</param>
         /// <returns>New instance of ResourceManager</returns>
-        public static PoResourceManager CreateFromConfiguration(string name, string section, Type stringstype, string fallbackFileFormat = DefaultFileFormat, string fallbackPath = DefaultPath)
+        public static PoResourceManager CreateFromConfiguration(string name, string section, Assembly localizationAssembly, string fallbackFileFormat = DefaultFileFormat, string fallbackPath = DefaultPath)
         {
             var config = ConfigurationManager.GetSection(section) as NameValueCollection;
 
@@ -114,7 +114,6 @@ namespace Oodrive.GetText.Classic.Resources
             }
 
 
-            var localizationAssembly = stringstype.Assembly;
             return new PoResourceManager(name, path, fileformat, localizationAssembly);
         }
 

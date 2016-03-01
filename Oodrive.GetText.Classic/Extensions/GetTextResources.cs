@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Resources;
 using System.Windows;
 using Oodrive.GetText.Classic.Resources;
 
@@ -12,7 +11,7 @@ namespace Oodrive.GetText.Classic.Extensions
     /// This class supports text localization in XAML.
     /// </summary>
     /// <remarks>
-    /// <see cref="ResourceManager"/>s used in XAML via the <see cref="GetTextExtension"/> class must be registered
+    /// <see cref="PoResourceManager"/>s used in XAML via the <see cref="GetTextExtension"/> class must be registered
     /// with the <see cref="GetTextResources"/> class.
     /// If you change the current culture at runtime, call the <see cref="Invalidate()"/> method to refresh all instances
     /// of <see cref="GetTextExtension"/>.
@@ -26,12 +25,9 @@ namespace Oodrive.GetText.Classic.Extensions
 
         private static readonly Dictionary<string, PoResourceManager> PoResourceManagers = new Dictionary<string, PoResourceManager>();
 
-        public static void AddResourceManager(string key, Type stringsType)
+        public static void AddResourceManager(string key, PoResourceManager manager)
         {
-            var field = stringsType.GetProperty("Key");
-            field.SetValue(null, key);
-            var resourceManager = PoResourceManager.CreateFromConfiguration("Strings", "getText", stringsType);
-            PoResourceManagers.Add(key, resourceManager);
+            PoResourceManagers.Add(key, manager);
             Invalidate();
         }
 

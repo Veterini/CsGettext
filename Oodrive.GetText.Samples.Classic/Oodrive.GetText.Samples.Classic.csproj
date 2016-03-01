@@ -100,6 +100,10 @@
       <Project>{1fd9e614-862d-4d5f-bbc2-6f81456592e0}</Project>
       <Name>Oodrive.GetText.Classic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Oodrive.GetText.Core\Oodrive.GetText.Core.csproj">
+      <Project>{f9565692-089b-4628-971f-6ab3efe24be4}</Project>
+      <Name>Oodrive.GetText.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Oodrive.GetText.Samples.Localization\Oodrive.GetText.Samples.Localization.csproj">
       <Project>{9e3f69cc-9623-4941-a04d-3df51854ecbb}</Project>
       <Name>Oodrive.GetText.Samples.Localization</Name>
