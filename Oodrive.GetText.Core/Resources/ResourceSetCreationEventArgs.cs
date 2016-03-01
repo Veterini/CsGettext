@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Resources;
-// ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Oodrive.GetText.Classic.Resources
+namespace Oodrive.GetText.Core.Resources
 {
     /// <summary>
     /// Arguments for events related to the creation, successful or not, of a resource set.

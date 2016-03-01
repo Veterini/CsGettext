@@ -56,7 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnonymousTypeExtensions.cs" />
     <Compile Include="GetTextKeyGenerator.cs" />
+    <Compile Include="PluralFormSelectors\BinaryPluralFormSelector.cs" />
+    <Compile Include="PluralFormSelectors\IPluralFormSelector.cs" />
+    <Compile Include="PluralFormSelectors\PolishPluralFormSelector.cs" />
+    <Compile Include="PluralFormSelectors\SingularPluralFormSelector.cs" />
+    <Compile Include="PluralFormSelectors\UnaryPluralFormSelector.cs" />
     <Compile Include="Po\ContextualPluralPoEntry.cs" />
     <Compile Include="Po\ContextualPoEntry.cs" />
     <Compile Include="Po\IPoEntry.cs" />
@@ -66,6 +72,10 @@
     <Compile Include="Po\PoHeader.cs" />
     <Compile Include="Po\PoParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\LocalizationAssemblyBasedResourceManager.cs" />
+    <Compile Include="Resources\PoResourceReader.cs" />
+    <Compile Include="Resources\PoResourceSet.cs" />
+    <Compile Include="Resources\ResourceSetCreationEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

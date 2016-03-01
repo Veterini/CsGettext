@@ -6,15 +6,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NString;
-using Oodrive.GetText.Classic.Resources.PluralFormSelectors;
 using Oodrive.GetText.Core;
+using Oodrive.GetText.Core.PluralFormSelectors;
+using Oodrive.GetText.Core.Resources;
 using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
 
 namespace Oodrive.GetText.Classic.Resources
 {
     public class PoResourceManager : LocalizationAssemblyBasedResourceManager
     {
-        private static IPluralFormSelector[] _selectors = 
+        private static readonly IPluralFormSelector[] Selectors = 
         {
            new UnaryPluralFormSelector(),
            new SingularPluralFormSelector(), 
@@ -152,7 +153,7 @@ namespace Oodrive.GetText.Classic.Resources
 
         private int GetPluralFormFromSelectors(int count)
         {
-            var selector = _selectors.FirstOrDefault(_ => _.ApplicableCultures.Contains(Language));
+            var selector = Selectors.FirstOrDefault(_ => _.ApplicableCultures.Contains(Language));
 
             return selector?.GetPluralForm(count) ?? (count == 1 ? 0 : 1);
         }

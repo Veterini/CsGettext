@@ -5,10 +5,8 @@ using System.IO;
 using System.Reflection;
 using System.Resources;
 using NString;
-using Path = Pri.LongPath.Path; 
-// ReSharper disable EventNeverSubscribedTo.Global
 
-namespace Oodrive.GetText.Classic.Resources
+namespace Oodrive.GetText.Core.Resources
 {
     /// <summary>
     /// Extendable file based resource manager.
@@ -31,7 +29,7 @@ namespace Oodrive.GetText.Classic.Resources
 
         private Assembly LocalizationAssembly { get; }
 
-        private IDictionary<CultureInfo,ResourceSet> InternalResourceSets { get; }
+        private IDictionary<CultureInfo, ResourceSet> InternalResourceSets { get; }
 
         #endregion
 
@@ -54,7 +52,7 @@ namespace Oodrive.GetText.Classic.Resources
 
         private void RaiseFailedResourceSet(string filename, Exception ex)
         {
-            FailedResourceSet?.Invoke(this, new ResourceSetCreationEventArgs(filename, ResourceSetType,exception: ex));
+            FailedResourceSet?.Invoke(this, new ResourceSetCreationEventArgs(filename, ResourceSetType, exception: ex));
         }
 
         #endregion
@@ -120,7 +118,7 @@ namespace Oodrive.GetText.Classic.Resources
 
         private ResourceSet InternalCreateResourceSet(Stream resourceFileStream)
         {
-            object[] args =  { resourceFileStream };
+            object[] args = { resourceFileStream };
             return (ResourceSet)Activator.CreateInstance(ResourceSetType, args);
         }
 
@@ -145,12 +143,12 @@ namespace Oodrive.GetText.Classic.Resources
         {
             var resourceFileName = GetFileResourceName(culture);
 
-            Stream loc = null;
+            Stream loc;
             if (LocalizationAssembly != null)
             {
                 loc = LocalizationAssembly.GetManifestResourceStream(resourceFileName);
 
-                if(loc != null) return loc;
+                if (loc != null) return loc;
             }
 
             var entryAssembly = Assembly.GetEntryAssembly();
@@ -163,7 +161,7 @@ namespace Oodrive.GetText.Classic.Resources
             var executingAssembly = Assembly.GetExecutingAssembly();
 
             // Else try the executing assembly dir
-            loc = executingAssembly?.GetManifestResourceStream(resourceFileName);
+            loc = executingAssembly.GetManifestResourceStream(resourceFileName);
 
             return loc;
         }

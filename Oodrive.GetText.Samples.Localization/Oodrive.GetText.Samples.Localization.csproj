@@ -60,6 +60,10 @@
       <Project>{1FD9E614-862D-4D5F-BBC2-6F81456592E0}</Project>
       <Name>Oodrive.GetText.Classic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Oodrive.GetText.Core\Oodrive.GetText.Core.csproj">
+      <Project>{f9565692-089b-4628-971f-6ab3efe24be4}</Project>
+      <Name>Oodrive.GetText.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\fr\Strings.po" />

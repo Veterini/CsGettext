@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 
-namespace Oodrive.GetText.Classic.Resources.PluralFormSelectors
+namespace Oodrive.GetText.Core.PluralFormSelectors
 {
-    class UnaryPluralFormSelector : IPluralFormSelector
+    public class UnaryPluralFormSelector : IPluralFormSelector
     {
-        public IReadOnlyList<CultureInfo> ApplicableCultures { get; } = new []
+        public IReadOnlyList<CultureInfo> ApplicableCultures { get; } = new[]
         {
             CultureInfo.GetCultureInfo("ja"),
             CultureInfo.GetCultureInfo("fa"),

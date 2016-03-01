@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace Oodrive.GetText.Classic
+namespace Oodrive.GetText.Core
 {
     public static class AnonymousTypeExtensions
     {

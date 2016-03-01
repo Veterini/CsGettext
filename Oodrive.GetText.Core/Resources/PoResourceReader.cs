@@ -4,9 +4,9 @@ using System.IO;
 using System.Resources;
 using Oodrive.GetText.Core.Po;
 
-namespace Oodrive.GetText.Classic.Resources
+namespace Oodrive.GetText.Core.Resources
 {
-    internal class PoResourceReader : IResourceReader
+    public class PoResourceReader : IResourceReader
     {
         private Stream Stream { get; }
 

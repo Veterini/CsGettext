@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 
-namespace Oodrive.GetText.Classic.Resources
+namespace Oodrive.GetText.Core.PluralFormSelectors
 {
-    interface IPluralFormSelector
+    public interface IPluralFormSelector
     {
         IReadOnlyList<CultureInfo> ApplicableCultures { get; }
 

@@ -1,7 +1,7 @@
 ﻿
 using System.Globalization;
 using NString;
-using Oodrive.GetText.Classic;
+using Oodrive.GetText.Core;
 using Oodrive.GetText.Classic.Extensions;
 
 namespace Oodrive.GetText.Samples.Localization
