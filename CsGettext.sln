@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oodrive.GetText.Samples.Loc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oodrive.GetText.Samples.Classic", "Oodrive.GetText.Samples.Classic\Oodrive.GetText.Samples.Classic.csproj", "{A2C559EC-3C51-4C13-AF1C-727B9C61E3AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oodrive.GetText.Core", "Oodrive.GetText.Core\Oodrive.GetText.Core.csproj", "{F9565692-089B-4628-971F-6AB3EFE24BE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{A2C559EC-3C51-4C13-AF1C-727B9C61E3AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2C559EC-3C51-4C13-AF1C-727B9C61E3AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2C559EC-3C51-4C13-AF1C-727B9C61E3AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9565692-089B-4628-971F-6AB3EFE24BE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9565692-089B-4628-971F-6AB3EFE24BE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9565692-089B-4628-971F-6AB3EFE24BE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9565692-089B-4628-971F-6AB3EFE24BE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,5 +68,6 @@ Global
 		{38E3BFF0-F4E4-4636-852B-BD4B9D06FFA2} = {CBBFFF55-3C86-44D8-A92E-85690B86FC8F}
 		{9E3F69CC-9623-4941-A04D-3DF51854ECBB} = {6585F750-17A2-4A8D-A21D-CE657B195C75}
 		{A2C559EC-3C51-4C13-AF1C-727B9C61E3AB} = {6585F750-17A2-4A8D-A21D-CE657B195C75}
+		{F9565692-089B-4628-971F-6AB3EFE24BE4} = {D9488184-C97C-41EE-AB44-E6C2E4245828}
 	EndGlobalSection
 EndGlobal

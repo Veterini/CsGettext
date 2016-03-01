@@ -5,9 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Linq.Extras;
 using NString;
 using Oodrive.GetText.Classic.Resources.PluralFormSelectors;
+using Oodrive.GetText.Core;
 using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
 
 namespace Oodrive.GetText.Classic.Resources

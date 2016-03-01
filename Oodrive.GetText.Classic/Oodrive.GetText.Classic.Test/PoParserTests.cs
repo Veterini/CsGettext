@@ -18,7 +18,7 @@ msgid ""Set Focus &Manually...""
 msgstr ""フォーカスを手動でセット(&M)...""";
 
             TextReader reader = new StringReader(po);
-            var dic = PoParser.ParseIntoDictionary(reader);
+            var dic = PoDictionary.ParseIntoDictionary(reader);
             dic.Count.Should().Be(1);
             dic.Keys.FirstOrDefault().Should().Be("Set Focus &Manually...");
             dic.Values.FirstOrDefault().Should().Be("フォーカスを手動でセット(&M)...");
@@ -41,7 +41,7 @@ msgid ""Planetary Nebulae""
 msgstr """"";
 
             TextReader reader = new StringReader(po);
-            var dic = PoParser.ParseIntoDictionary(reader);
+            var dic = PoDictionary.ParseIntoDictionary(reader);
             dic.Count.Should().Be(3);
 
             dic.Keys.ShouldBeEquivalentTo(new [] { "Globular Clusters" , "Gaseous Nebulae" , "Planetary Nebulae" });
@@ -59,7 +59,7 @@ msgstr """"
 "" u meniju uređaja.""";
 
             TextReader reader = new StringReader(po);
-            var dic = PoParser.ParseIntoDictionary(reader);
+            var dic = PoDictionary.ParseIntoDictionary(reader);
             dic.Count.Should().Be(1);
             dic.Keys.FirstOrDefault().Should().Be("No INDI devices(...) in the devices menu.");
             dic.Values.FirstOrDefault().Should().Be("Nema INDI uređaja (...) u meniju uređaja.");
@@ -81,7 +81,7 @@ msgid ""S""
 msgstr """"";
 
             TextReader reader = new StringReader(po);
-            var dic = PoParser.ParseIntoDictionary(reader);
+            var dic = PoDictionary.ParseIntoDictionary(reader);
             dic.Count.Should().Be(2);
 
             dic.Keys.ShouldBeEquivalentTo(new[] { "S_I18nContext_First letter in 'Scope'", "S_I18nContext_South" });
@@ -101,7 +101,7 @@ msgstr[2] ""Czas: %1 sekund""";
 
 
             TextReader reader = new StringReader(po);
-            var dic = PoParser.ParseIntoDictionary(reader);
+            var dic = PoDictionary.ParseIntoDictionary(reader);
             dic.Count.Should().Be(3);
 
             dic.Keys.ShouldBeEquivalentTo(new[] { "Time: % 1 second_I18nPluralForm_0", "Time: % 1 second_I18nPluralForm_1", "Time: % 1 second_I18nPluralForm_2" });

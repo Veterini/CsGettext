@@ -4,17 +4,23 @@ using System.IO;
 using System.Text;
 using NString;
 
-namespace Oodrive.GetText.Classic.Resources
+namespace Oodrive.GetText.Core.Po
 {
-    public static class PoParser
+    public class PoParser : IDisposable
     {
+        private readonly TextReader _reader;
+
         private static ParserState _state;
 
-        /// <summary>
-        /// Parses an input po file.
-        /// </summary>
-        private static void Parse(TextReader reader, IDictionary<string, string> dic)
+        public PoParser(TextReader reader)
         {
+            _reader = reader;
+            _messages = new List<IPoEntry>();
+        }
+
+        public void Parse()
+        {
+
             SetState(ParserState.WaitingKey);
             var isFuzzy = false;
 
@@ -22,17 +28,17 @@ namespace Oodrive.GetText.Classic.Resources
             StringBuilder currentValue = null;
             StringBuilder currentContext = null;
             StringBuilder currentPluralKey = null;
-            IDictionary<int,StringBuilder> pluralValues = null;
+            IDictionary<int, StringBuilder> pluralValues = null;
 
             while (true)
             {
-                var line = reader.ReadLine();
+                var line = _reader.ReadLine();
                 line = line?.Trim();
                 if (line.IsNullOrEmpty())
                 {
-                    if (_state == ParserState.ConsumingValue && !isFuzzy && currentKey != null)
+                    if (_state == ParserState.ConsumingValue && currentKey != null)
                     {
-                        SetValuesForKeys(dic, CleanString(currentKey.ToString()), currentPluralKey, currentContext,
+                        SetValuesForKeys(CleanString(currentKey.ToString()), isFuzzy, currentPluralKey, currentContext,
                             currentValue, pluralValues);
 
                         currentKey = null;
@@ -100,29 +106,13 @@ namespace Oodrive.GetText.Classic.Resources
                         }
                         break;
                     case LineType.PluralFormRule:
-                        SetPluralFormRule(dic, CleanString(parsingResult.Value));
+                        SetPluralFormRule(isFuzzy, CleanString(parsingResult.Value));
                         break;
                 }
             }
         }
 
-        private static void SetPluralFormRule(IDictionary<string, string> dic, string rule)
-        {
-            var pluralFormRuleKey = GetTextKeyGenerator.GetPluralFormRuleKey();
-            dic[pluralFormRuleKey] = rule;
-        }
-
-        private static void SetInDictionary(IDictionary<string, string> dic, string key, string value)
-        {
-            string here;
-            if(dic.TryGetValue(key, out here))
-                throw new ArgumentOutOfRangeException(nameof(key),"This key has already been added, the po file is illformed");
-
-            dic[key] = value;
-        }
-
-        private static void SetValuesForKeys(IDictionary<string, string> dic, string key, StringBuilder currentPluralKey,
-            StringBuilder currentContext, StringBuilder currentValue, IDictionary<int, StringBuilder> pluralValues)
+        private void SetValuesForKeys(string id, bool fuzzy, StringBuilder currentPluralKey, StringBuilder currentContext, StringBuilder currentValue, IDictionary<int, StringBuilder> pluralValues)
         {
             var hasContext = currentContext != null;
             var hasPlural = currentPluralKey != null && pluralValues != null;
@@ -132,24 +122,48 @@ namespace Oodrive.GetText.Classic.Resources
 
             if (!hasContext && !hasPlural)
             {
-                SetInDictionary(dic,key,value);
+                var message = new PoEntry(id, value, fuzzy);
+                _messages.Add(message);
                 return;
             }
 
             if (hasContext && !hasPlural)
             {
-                var ctxKey = GetTextKeyGenerator.GetContextKey(key, ctxValue);
-                SetInDictionary(dic, ctxKey,value);
+                var message = new ContextualPoEntry(id, value, ctxValue, fuzzy);
+                _messages.Add(message);
                 return;
             }
 
-            foreach (var entry in pluralValues)
+            var plurals = new Dictionary<int,string>();
+            foreach (var builder in pluralValues)
             {
-                var ctxKey = !hasContext
-                    ? GetTextKeyGenerator.GetPluralKey(key, entry.Key)
-                    : GetTextKeyGenerator.GetPluralKeyAndContext(key, entry.Key, ctxValue);
-                SetInDictionary(dic, ctxKey, CleanString(entry.Value.ToString()));
+                plurals[builder.Key] = builder.Value.ToString();
             }
+
+            {
+                var message = !hasContext
+                    ? (IPoEntry)new PluralPoEntry(id,Header?.NPlurals ?? 2, plurals, fuzzy)
+                    : new ContextualPluralPoEntry(id,ctxValue, Header?.NPlurals ?? 2,plurals,fuzzy);
+                _messages.Add(message);
+            }
+        }
+
+        private void SetPluralFormRule(bool isFuzzy, string rule)
+        {
+            var pluralForm = "n == 1";
+            var nplurals = 2;
+            if (!rule.IsNullOrEmpty() && rule.StartsWith("nplurals="))
+            {
+                var firstEqual = rule.IndexOf('=');
+                var sep = rule.IndexOf(';');
+                var npluralsString = rule.Substring(firstEqual + 1, sep - firstEqual - 1).Trim();
+                nplurals = int.Parse(npluralsString);
+                var firstIndex = rule.IndexOf('=', sep);
+                var secondIndex = rule.IndexOf(';', firstIndex + 1);
+                pluralForm = rule.Substring(firstIndex + 1, secondIndex - firstIndex - 1).Trim();
+            }
+
+            Header = new PoHeader(isFuzzy,nplurals,pluralForm);
         }
 
         private static LineParsingResult ParseLine(string line)
@@ -223,14 +237,14 @@ namespace Oodrive.GetText.Classic.Resources
             return secondQuote == -1 ? string.Empty : line.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
         }
 
-        /// <summary>
-        /// Parses an input po file into a dictionary.
-        /// </summary>
-        public static Dictionary<string, string> ParseIntoDictionary(TextReader reader)
+        private readonly List<IPoEntry> _messages;
+        public IEnumerable<IPoEntry> Messages => _messages;
+
+        public PoHeader Header { get; private set; }
+
+        public void Dispose()
         {
-            var dic = new Dictionary<string, string>();
-            Parse(reader, dic);
-            return dic;
+            _reader?.Dispose();
         }
 
         private static string CleanString(string value)
@@ -243,7 +257,7 @@ namespace Oodrive.GetText.Classic.Resources
             _state = state;
         }
 
-        enum LineType
+        private enum LineType
         {
             Key,
             Value,
@@ -260,7 +274,7 @@ namespace Oodrive.GetText.Classic.Resources
             PluralFormRule
         }
 
-        enum ParserState
+        private enum ParserState
         {
             WaitingKey,
             ConsumingKey,
@@ -269,13 +283,13 @@ namespace Oodrive.GetText.Classic.Resources
             ConsumingContext,
         }
 
-        class LineParsingResult
+        private class LineParsingResult
         {
-            public LineType Type { get; }
-            public string Value { get; }
-            public int? PluralForm { get; }
+            internal LineType Type { get; }
+            internal string Value { get; }
+            internal int? PluralForm { get; }
 
-            public LineParsingResult(LineType type, string value = null, int? pluralForm = null)
+            internal LineParsingResult(LineType type, string value = null, int? pluralForm = null)
             {
                 Type = type;
                 Value = value;

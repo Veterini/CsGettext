@@ -27,7 +27,7 @@ namespace Oodrive.GetText.Classic.Resources
         {
             using (var reader = new StreamReader(Stream))
             {
-                return PoParser.ParseIntoDictionary(reader).GetEnumerator();
+                return PoDictionary.ParseIntoDictionary(reader).GetEnumerator();
             }
         }
 
