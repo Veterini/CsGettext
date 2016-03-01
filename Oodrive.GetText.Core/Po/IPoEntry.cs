@@ -21,5 +21,6 @@ namespace Oodrive.GetText.Core.Po
         IReadOnlyList<string> TranslatorComments { get; }
 
         IReadOnlyList<string> Comments { get; }
+        void Accept(Dictionary<string, string> dic);
     }
 }

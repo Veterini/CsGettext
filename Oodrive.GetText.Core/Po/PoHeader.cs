@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using NString;
@@ -51,6 +52,11 @@ namespace Oodrive.GetText.Core.Po
         }
 
         public override bool IsHeader => true;
+
+        public override void Accept(Dictionary<string, string> dic)
+        {
+            throw new NotImplementedException();
+        }
 
         public int NPlurals { get; }
 

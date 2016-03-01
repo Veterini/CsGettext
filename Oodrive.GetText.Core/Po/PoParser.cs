@@ -116,6 +116,7 @@ namespace Oodrive.GetText.Core.Po
         {
             var hasContext = currentContext != null;
             var hasPlural = currentPluralKey != null && pluralValues != null;
+            var pluralKey = currentPluralKey != null ? CleanString(currentPluralKey.ToString()) : string.Empty;
 
             var value = CleanString(currentValue?.ToString() ?? string.Empty);
             var ctxValue = CleanString(currentContext?.ToString() ?? string.Empty);
@@ -142,8 +143,8 @@ namespace Oodrive.GetText.Core.Po
 
             {
                 var message = !hasContext
-                    ? (IPoEntry)new PluralPoEntry(id,Header?.NPlurals ?? 2, plurals, fuzzy)
-                    : new ContextualPluralPoEntry(id,ctxValue, Header?.NPlurals ?? 2,plurals,fuzzy);
+                    ? (IPoEntry)new PluralPoEntry(id, pluralKey, Header?.NPlurals ?? 2, plurals, fuzzy)
+                    : new ContextualPluralPoEntry(id, pluralKey, ctxValue, Header?.NPlurals ?? 2,plurals,fuzzy);
                 _messages.Add(message);
             }
         }

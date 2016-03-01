@@ -17,6 +17,11 @@ namespace Oodrive.GetText.Core.Po
         
         public override string Value { get; }
 
+        public override void Accept(Dictionary<string, string> dic)
+        {
+            dic[GetTextKeyGenerator.GetContextKey(Id, Context)] = Value;
+        }
+
         public string Context { get; }
 
         public override bool IsContextual => true;

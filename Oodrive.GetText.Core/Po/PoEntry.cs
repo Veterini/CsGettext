@@ -15,5 +15,10 @@ namespace Oodrive.GetText.Core.Po
         }
 
         public override string Value { get; }
+
+        public override void Accept(Dictionary<string, string> dic)
+        {
+            dic[Id] = Value;
+        }
     }
 }

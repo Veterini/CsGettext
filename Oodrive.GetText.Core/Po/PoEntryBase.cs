@@ -31,5 +31,6 @@ namespace Oodrive.GetText.Core.Po
         public IReadOnlyList<string> TranslatorComments { get; }
 
         public IReadOnlyList<string> Comments { get; }
+        public abstract void Accept(Dictionary<string, string> dic);
     }
 }
