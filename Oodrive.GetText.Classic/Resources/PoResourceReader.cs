@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Resources;
+using Oodrive.GetText.Core.Po;
 
 namespace Oodrive.GetText.Classic.Resources
 {
@@ -25,9 +26,9 @@ namespace Oodrive.GetText.Classic.Resources
 
         public IDictionaryEnumerator GetEnumerator()
         {
-            using (var reader = new StreamReader(Stream))
+            using (var parser = new PoParser(new StreamReader(Stream)))
             {
-                return PoDictionary.ParseIntoDictionary(reader).GetEnumerator();
+                return parser.ToDictionary().GetEnumerator();
             }
         }
 

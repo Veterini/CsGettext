@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using NString;
 
@@ -237,6 +238,19 @@ namespace Oodrive.GetText.Core.Po
 
             return secondQuote == -1 ? string.Empty : line.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
         }
+
+        public Dictionary<string, string> ToDictionary()
+        {
+            if(_messages.Count == 0)
+                Parse();
+
+            var dic = new Dictionary<string, string>();
+            foreach (var message in Messages.Where(message => !message.IsFuzzy && !message.IsObselete))
+            {
+                message.Accept(dic);
+            }
+            return dic;
+        } 
 
         private readonly List<IPoEntry> _messages;
         public IEnumerable<IPoEntry> Messages => _messages;

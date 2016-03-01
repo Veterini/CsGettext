@@ -63,9 +63,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Oodrive.GetText.Classic.csproj">
-      <Project>{1fd9e614-862d-4d5f-bbc2-6f81456592e0}</Project>
-      <Name>Oodrive.GetText.Classic</Name>
+    <ProjectReference Include="..\..\Oodrive.GetText.Core\Oodrive.GetText.Core.csproj">
+      <Project>{f9565692-089b-4628-971f-6ab3efe24be4}</Project>
+      <Name>Oodrive.GetText.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

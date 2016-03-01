@@ -83,7 +83,6 @@
     <Compile Include="Resources\PluralFormSelectors\PolishPluralFormSelector.cs" />
     <Compile Include="Resources\PluralFormSelectors\SingularPluralFormSelector.cs" />
     <Compile Include="Resources\PluralFormSelectors\UnaryPluralFormSelector.cs" />
-    <Compile Include="Resources\PoDictionary.cs" />
     <Compile Include="Resources\PoResourceManager.cs" />
     <Compile Include="Resources\PoResourceReader.cs" />
     <Compile Include="Resources\PoResourceSet.cs" />
