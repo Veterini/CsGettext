@@ -16,10 +16,5 @@
         {
             return $"{key}_I18nPluralForm_{form}_I18nContext_{context}";
         }
-
-        public static string GetPluralFormRuleKey()
-        {
-            return "I18nPluralForm_PluralFormRule";
-        }
     }
 }

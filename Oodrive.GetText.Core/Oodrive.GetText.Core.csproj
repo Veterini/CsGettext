@@ -43,6 +43,7 @@
       <HintPath>..\packages\System.Collections.Immutable.1.1.37\lib\dotnet\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Linq.Dynamic, Version=1.0.5840.25917, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Linq.Dynamic.1.0.6\lib\net40\System.Linq.Dynamic.dll</HintPath>
@@ -67,7 +68,7 @@
     <Compile Include="Po\PoHeader.cs" />
     <Compile Include="Po\PoParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Resources\LocalizationAssemblyBasedResourceManager.cs" />
+    <Compile Include="Resources\PoBasedResourceManager.cs" />
     <Compile Include="Resources\PoResourceReader.cs" />
     <Compile Include="Resources\PoResourceSet.cs" />
     <Compile Include="Resources\ResourceSetCreationEventArgs.cs" />

@@ -1,46 +1,18 @@
-﻿using System;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Configuration;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Resources;
 using NString;
 using Oodrive.GetText.Core;
-using Oodrive.GetText.Core.PluralFormSelectors;
-using Oodrive.GetText.Core.Po;
 using Oodrive.GetText.Core.Resources;
 
 namespace oodrive.GetText.Mono.Resources
 {
-    public class MonoPoResourceManager : LocalizationAssemblyBasedResourceManager
+    public class MonoPoResourceManager : PoBasedResourceManager
     {
-        private static readonly IPluralFormSelector[] Selectors =
-        {
-           new UnaryPluralFormSelector(),
-           new SingularPluralFormSelector(),
-           new PolishPluralFormSelector(),
-           new BinaryPluralFormSelector(),
-        };
-
-        private readonly PluralRuleHolder _pluralRuleHolder = new PluralRuleHolder();
-
         #region Defaults
 
         private const string DefaultFileFormat = "{{resource}}.{{culture}}.po";
         private const string DefaultPath = "Resources";
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Returns the Gettext resource set type used.
-        /// </summary>
-        public override Type ResourceSetType => typeof(PoResourceSet);
-
-        public CultureInfo Language { get; set; }
 
         #endregion
 
@@ -71,23 +43,6 @@ namespace oodrive.GetText.Mono.Resources
         #endregion
 
         #region Configuration
-
-        /// <summary>
-        /// Loads the named configuration section and retrieves file format and path from "fileformat" and "path" settings.
-        /// </summary>
-        /// <param name="section">Name of the section to retrieve.</param>
-        /// <returns>True if the configuration section was loaded.</returns>
-        public bool LoadConfiguration(string section)
-        {
-            var config = ConfigurationManager.GetSection(section) as NameValueCollection;
-
-            if (config == null) return false;
-
-            ResourceFormat = config["fileformat"] ?? ResourceFormat;
-            ResourcesPath = config["path"] ?? ResourcesPath;
-
-            return true;
-        }
 
         /// <summary>
         /// Creates a new instance retrieving path and fileformat from the specified configuration section.
@@ -132,19 +87,6 @@ namespace oodrive.GetText.Mono.Resources
             return StringTemplate.Format(!result.IsNullOrEmpty() ? result :  $"[{key} : Occurence {value}]", values);
         }
 
-        private int GetPluralForm(int value)
-        {
-            var rule = _pluralRuleHolder.PluralRule;
-            return rule?.Invoke(value) ?? GetPluralFormFromSelectors(value);
-        }
-
-        private int GetPluralFormFromSelectors(int count)
-        {
-            var selector = Selectors.FirstOrDefault(_ => _.ApplicableCultures.Contains(Language));
-
-            return selector?.GetPluralForm(count) ?? (count == 1 ? 0 : 1);
-        }
-
         public string GetStringCtxt(string key, string context, object parameters = null)
         {
             var contextKey = GetTextKeyGenerator.GetContextKey(key, context);
@@ -170,13 +112,6 @@ namespace oodrive.GetText.Mono.Resources
             var result = base.GetString(key, Language);
 
             return !result.IsNullOrEmpty() ? result : $"[{key}]";
-        }
-
-        protected override ResourceSet InternalCreateResourceSet(Stream resourceFileStream)
-        {
-            object[] args = { resourceFileStream, _pluralRuleHolder };
-            var rs = (PoResourceSet)Activator.CreateInstance(ResourceSetType, args);
-            return rs;
         }
     }
 }

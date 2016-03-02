@@ -1,19 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Resources;
 using NString;
+using Oodrive.GetText.Core.PluralFormSelectors;
+using Oodrive.GetText.Core.Po;
 
 namespace Oodrive.GetText.Core.Resources
 {
     /// <summary>
     /// Extendable file based resource manager.
     /// </summary>
-    public abstract class LocalizationAssemblyBasedResourceManager : ResourceManager
+    public abstract class PoBasedResourceManager : ResourceManager
     {
         #region Properties
+
+        private static readonly IPluralFormSelector[] Selectors =
+        {
+           new UnaryPluralFormSelector(),
+           new SingularPluralFormSelector(),
+           new PolishPluralFormSelector(),
+           new BinaryPluralFormSelector(),
+        };
+        
+        public CultureInfo Language { get; set; }
+
+        private readonly PluralRuleHolder _pluralRuleHolder = new PluralRuleHolder();
+
+        /// <summary>
+        /// Returns the Gettext resource set type used.
+        /// </summary>
+        public override Type ResourceSetType => typeof(PoResourceSet);
 
         /// <summary>
         /// ResourcesPath to retrieve the files from.
@@ -58,13 +80,30 @@ namespace Oodrive.GetText.Core.Resources
         #endregion
 
         /// <summary>
+        /// Loads the named configuration section and retrieves file format and path from "fileformat" and "path" settings.
+        /// </summary>
+        /// <param name="section">Name of the section to retrieve.</param>
+        /// <returns>True if the configuration section was loaded.</returns>
+        public bool LoadConfiguration(string section)
+        {
+            var config = ConfigurationManager.GetSection(section) as NameValueCollection;
+
+            if (config == null) return false;
+
+            ResourceFormat = config["fileformat"] ?? ResourceFormat;
+            ResourcesPath = config["path"] ?? ResourcesPath;
+
+            return true;
+        }
+
+        /// <summary>
         /// Creates a new instance.
         /// </summary>
         /// <param name="name">Name of the resource</param>
         /// <param name="resourcesPath">ResourcesPath to retrieve the files from</param>
         /// <param name="fileformat">Format of the file name using {{resource}} and {{culture}} placeholders.</param>
         /// <param name="localizationAssembly"></param>
-        protected LocalizationAssemblyBasedResourceManager(string name, string resourcesPath, string fileformat, Assembly localizationAssembly)
+        protected PoBasedResourceManager(string name, string resourcesPath, string fileformat, Assembly localizationAssembly)
         {
             ResourcesPath = resourcesPath;
             ResourceFormat = fileformat;
@@ -115,8 +154,6 @@ namespace Oodrive.GetText.Core.Resources
             AddResourceSet(resourceSets, culture, ref rs);
             return rs;
         }
-
-        protected abstract ResourceSet InternalCreateResourceSet(Stream resourceFileStream);
 
         private ResourceSet CreateResourceSet(Stream resourceFileStream)
         {
@@ -194,6 +231,25 @@ namespace Oodrive.GetText.Core.Resources
                 set = null;
                 return false;
             }
+        }
+
+        protected int GetPluralForm(int value)
+        {
+            var rule = _pluralRuleHolder.PluralRule;
+            return rule?.Invoke(value) ?? GetPluralFormFromSelectors(value);
+        }
+
+        protected int GetPluralFormFromSelectors(int count)
+        {
+            var selector = Selectors.FirstOrDefault(_ => _.ApplicableCultures.Contains(Language));
+
+            return selector?.GetPluralForm(count) ?? count % 2;
+        }
+
+        protected ResourceSet InternalCreateResourceSet(Stream resourceFileStream)
+        {
+            object[] args = { resourceFileStream, _pluralRuleHolder };
+            return (ResourceSet)Activator.CreateInstance(ResourceSetType, args);
         }
 
     }
