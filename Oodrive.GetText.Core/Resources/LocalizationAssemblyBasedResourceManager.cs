@@ -11,7 +11,7 @@ namespace Oodrive.GetText.Core.Resources
     /// <summary>
     /// Extendable file based resource manager.
     /// </summary>
-    public class LocalizationAssemblyBasedResourceManager : ResourceManager
+    public abstract class LocalizationAssemblyBasedResourceManager : ResourceManager
     {
         #region Properties
 
@@ -116,11 +116,7 @@ namespace Oodrive.GetText.Core.Resources
             return rs;
         }
 
-        private ResourceSet InternalCreateResourceSet(Stream resourceFileStream)
-        {
-            object[] args = { resourceFileStream };
-            return (ResourceSet)Activator.CreateInstance(ResourceSetType, args);
-        }
+        protected abstract ResourceSet InternalCreateResourceSet(Stream resourceFileStream);
 
         private ResourceSet CreateResourceSet(Stream resourceFileStream)
         {

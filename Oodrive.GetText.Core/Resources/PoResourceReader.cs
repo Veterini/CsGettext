@@ -10,8 +10,11 @@ namespace Oodrive.GetText.Core.Resources
     {
         private Stream Stream { get; }
 
-        public PoResourceReader(Stream stream)
+        private readonly PluralRuleHolder _holder;
+
+        public PoResourceReader(Stream stream, PluralRuleHolder holder)
         {
+            _holder = holder;
             if (stream == null)
             {
                 throw new ArgumentNullException(nameof(stream));
@@ -28,7 +31,9 @@ namespace Oodrive.GetText.Core.Resources
         {
             using (var parser = new PoParser(new StreamReader(Stream)))
             {
-                return parser.ToDictionary().GetEnumerator();
+                var dic = parser.ToDictionary();
+                if(_holder != null) _holder.PluralRule = parser.Header?.PluralFormSelector;
+                return dic.GetEnumerator();
             }
         }
 

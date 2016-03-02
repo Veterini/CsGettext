@@ -4,30 +4,31 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Resources;
 using NString;
 using Oodrive.GetText.Core;
 using Oodrive.GetText.Core.PluralFormSelectors;
+using Oodrive.GetText.Core.Po;
 using Oodrive.GetText.Core.Resources;
-using DynamicExpression = System.Linq.Dynamic.DynamicExpression;
 
-namespace Oodrive.GetText.Classic.Resources
+namespace oodrive.GetText.Mono.Resources
 {
-    public class PoResourceManager : LocalizationAssemblyBasedResourceManager
+    public class MonoPoResourceManager : LocalizationAssemblyBasedResourceManager
     {
-        private static readonly IPluralFormSelector[] Selectors = 
+        private static readonly IPluralFormSelector[] Selectors =
         {
            new UnaryPluralFormSelector(),
-           new SingularPluralFormSelector(), 
-           new PolishPluralFormSelector(), 
-           new BinaryPluralFormSelector(),  
+           new SingularPluralFormSelector(),
+           new PolishPluralFormSelector(),
+           new BinaryPluralFormSelector(),
         };
-        
+
+        private readonly PluralRuleHolder _pluralRuleHolder = new PluralRuleHolder();
+
         #region Defaults
 
-        private const string DefaultFileFormat = "{{culture}}.{{resource}}.po";
+        private const string DefaultFileFormat = "{{resource}}.{{culture}}.po";
         private const string DefaultPath = "Resources";
 
         #endregion
@@ -52,7 +53,7 @@ namespace Oodrive.GetText.Classic.Resources
         /// <param name="path">Path to retrieve the files from</param>
         /// <param name="fileformat">Format of the file name using {{resource}} and {{culture}} placeholders.</param>
         /// <param name="localizationAssembly">Assembly used for localization</param>
-        public PoResourceManager(string name, string path, string fileformat, Assembly localizationAssembly)
+        public MonoPoResourceManager(string name, string path, string fileformat, Assembly localizationAssembly)
             : base(name, path, fileformat, localizationAssembly)
         {
         }
@@ -62,7 +63,7 @@ namespace Oodrive.GetText.Classic.Resources
         /// </summary>
         /// <param name="name">Name of the resource</param>
         /// <param name="localizationAssembly">Assembly used for localization</param>
-        public PoResourceManager(string name, Assembly localizationAssembly)
+        public MonoPoResourceManager(string name, Assembly localizationAssembly)
             : base(name, DefaultPath, DefaultFileFormat, localizationAssembly)
         {
         }
@@ -97,7 +98,7 @@ namespace Oodrive.GetText.Classic.Resources
         /// <param name="fallbackPath">Path to be used if configuration could not be retrieved</param>
         /// <param name="localizationAssembly">Assembly used for localization</param>
         /// <returns>New instance of ResourceManager</returns>
-        public static PoResourceManager CreateFromConfiguration(string name, string section, Assembly localizationAssembly, string fallbackFileFormat = DefaultFileFormat, string fallbackPath = DefaultPath)
+        public static MonoPoResourceManager CreateFromConfiguration(string name, string section, Assembly localizationAssembly, string fallbackFileFormat = DefaultFileFormat, string fallbackPath = DefaultPath)
         {
             var config = ConfigurationManager.GetSection(section) as NameValueCollection;
 
@@ -116,40 +117,25 @@ namespace Oodrive.GetText.Classic.Resources
             }
 
 
-            return new PoResourceManager(name, path, fileformat, localizationAssembly);
+            return new MonoPoResourceManager(name, path, fileformat, localizationAssembly);
         }
 
         #endregion
 
-        public string GetStringPlur(string key, string plural, int value, object parameters = null)
+        public string GetStringPlur(string key, int value, object parameters = null)
         {
             var form = GetPluralForm(value);
             var pluralKey = GetTextKeyGenerator.GetPluralKey(key, form);
 
             var result = GetString(pluralKey);
             var values = parameters.AddProperty("Occurence", value);
-            return StringTemplate.Format(!result.IsNullOrEmpty() ? result : value != 1 ? plural : key, values);
+            return StringTemplate.Format(!result.IsNullOrEmpty() ? result :  $"[{key} : Occurence {value}]", values);
         }
 
         private int GetPluralForm(int value)
         {
-            var ruleKey = GetTextKeyGenerator.GetPluralFormRuleKey();
-            var rule = GetString(ruleKey);
-            if(rule.IsNullOrEmpty() || !rule.StartsWith("nplurals=")) return GetPluralFormFromSelectors(value);
-
-            var firstIndex = rule.IndexOf(';');
-            firstIndex = rule.IndexOf('=', firstIndex);
-            var secondIndex = rule.IndexOf(';', firstIndex + 1);
-            var formSelectorExpression = rule.Substring(firstIndex + 1, secondIndex - firstIndex - 1).Trim();
-
-            var p = Expression.Parameter(typeof(int), "n");
-            var e = DynamicExpression.ParseLambda(new[] { p }, null, formSelectorExpression);
-            var result = e.Compile().DynamicInvoke(value);
-            var booleanResult = result as bool?;
-            if (booleanResult.HasValue) return booleanResult == true ? 1 : 0;
-            var integerResult = result as int?;
-            if (integerResult.HasValue) return integerResult.Value;
-            return value % 2;
+            var rule = _pluralRuleHolder.PluralRule;
+            return rule?.Invoke(value) ?? GetPluralFormFromSelectors(value);
         }
 
         private int GetPluralFormFromSelectors(int count)
@@ -164,11 +150,11 @@ namespace Oodrive.GetText.Classic.Resources
             var contextKey = GetTextKeyGenerator.GetContextKey(key, context);
             var result = GetString(contextKey);
 
-            var str = !result.IsNullOrEmpty() ? result : key;
+            var str = !result.IsNullOrEmpty() ? result : $"[{key} : Context {context}]";
             return parameters != null ? StringTemplate.Format(str, parameters) : str;
         }
 
-        public string GetStringPlurCtxt(string key, string plural, int value, string context, object parameters = null)
+        public string GetStringPlurCtxt(string key, int value, string context, object parameters = null)
         {
             var form = GetPluralForm(value);
             var pluralKey = GetTextKeyGenerator.GetPluralKeyAndContext(key, form, context);
@@ -176,20 +162,21 @@ namespace Oodrive.GetText.Classic.Resources
             var result = GetString(pluralKey);
             var values = parameters.AddProperty("Occurence", value);
 
-            return StringTemplate.Format(!result.IsNullOrEmpty() ? result : value != 1 ? plural : key, values);
+            return StringTemplate.Format(!result.IsNullOrEmpty() ? result : $"[{key} : Occurence {value} : Context {context}]", values);
         }
 
-        public override string GetString(string name)
+        public override string GetString(string key)
         {
-            return base.GetString(name, Language);
+            var result = base.GetString(key, Language);
+
+            return !result.IsNullOrEmpty() ? result : $"[{key}]";
         }
 
         protected override ResourceSet InternalCreateResourceSet(Stream resourceFileStream)
         {
-            object[] args = { resourceFileStream, null };
-            return (ResourceSet)Activator.CreateInstance(ResourceSetType, args);
+            object[] args = { resourceFileStream, _pluralRuleHolder };
+            var rs = (PoResourceSet)Activator.CreateInstance(ResourceSetType, args);
+            return rs;
         }
     }
-
-
 }
