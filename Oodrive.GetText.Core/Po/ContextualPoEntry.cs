@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Oodrive.GetText.Core.Po
 {
-    class ContextualPoEntry : PoEntryBase
+    public class ContextualPoEntry : PoEntryBase
     {
         public ContextualPoEntry(string id, string value, string context, IEnumerable<string> comments, IEnumerable<string> translatorComments, bool isFuzzy = false, bool isObselete = false) : base(id, isFuzzy, isObselete, comments, translatorComments)
         {

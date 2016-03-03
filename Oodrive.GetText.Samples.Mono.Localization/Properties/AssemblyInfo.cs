@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Oodrive.GetText.Mono")]
+[assembly: AssemblyTitle("Oodrive.GetText.Samples.Mono.Localization")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Oodrive.GetText.Mono")]
+[assembly: AssemblyProduct("Oodrive.GetText.Samples.Mono.Localization")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ba1809bf-df96-4bca-adc0-0431078010d2")]
+[assembly: Guid("7d1ed118-e08c-45cd-a0fe-6de5ff80382e")]
 
 // Version information for an assembly consists of the following four values:
 //

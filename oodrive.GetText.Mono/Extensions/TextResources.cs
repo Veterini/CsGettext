@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Windows;
-using oodrive.GetText.Mono.Resources;
+using Oodrive.GetText.Mono.Resources;
 
-namespace oodrive.GetText.Mono.Extensions
+namespace Oodrive.GetText.Mono.Extensions
 {
     /// <summary>
     /// This class supports text localization in XAML.

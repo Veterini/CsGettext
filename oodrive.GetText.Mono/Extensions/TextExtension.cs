@@ -5,7 +5,7 @@ using System.Windows.Data;
 using System.Windows.Markup;
 using NString;
 
-namespace oodrive.GetText.Mono.Extensions
+namespace Oodrive.GetText.Mono.Extensions
 {
     [ExcludeFromCodeCoverage] // Not testable: relies on dependency property mechanisms, won't work in unit test environment
     [MarkupExtensionReturnType(typeof(string))]

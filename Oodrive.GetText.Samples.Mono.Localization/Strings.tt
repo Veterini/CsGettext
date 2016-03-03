@@ -1,0 +1,156 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ assembly name="$(SolutionDir)\Oodrive.GetText.Core\bin\$(ConfigurationName)\Oodrive.GetText.Core.dll" #>
+<#@ assembly name="EnvDTE" #>
+<#@ import namespace="Oodrive.GetText.Core.Po" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="EnvDTE" #>
+<#@ output extension=".cs" #>
+<#
+    var project = FindProject();
+    string className = Path.GetFileNameWithoutExtension(Host.TemplateFile);
+    string resourceFileName = "Resources/" + className + ".po";
+    string resourceNamespace = project.Name;
+    string resourcesFile = Host.ResolvePath(resourceFileName);
+    var reader = File.OpenText(resourcesFile);
+#>
+using System.Globalization;
+using Oodrive.GetText.Mono.Extensions;
+using Oodrive.GetText.Mono.Resources;
+
+namespace <#= resourceNamespace #>
+{
+    public static class Strings
+    {
+        private static CultureInfo _language;
+
+        public static CultureInfo Language
+        {
+            get { return _language; }
+            set
+            {
+                if (Equals(_language, value)) return;
+                _language = value;
+                TextResources.Language = _language;
+            }
+        }
+
+        private static MonoPoResourceManager _monoPoResourceManager;
+        public static MonoPoResourceManager MonoPoResourceManager
+        {
+            get
+            {
+                if (_monoPoResourceManager != null)
+                    return _monoPoResourceManager;
+
+                _monoPoResourceManager = MonoPoResourceManager.CreateFromConfiguration("Strings", "getText", typeof(Strings).Assembly);
+                return _monoPoResourceManager;
+            }
+        }
+
+<#
+    using(var parser = new PoParser(reader))
+    {
+        var cxtMessages = new HashSet<string>();
+        var cxtPluralMessages = new HashSet<string>();
+        parser.Parse();
+        foreach(var message in parser.Messages) {
+            var poEntry = message as PoEntry;
+            if( poEntry != null && message.Id != string.Empty  )
+            {
+#>
+        /// <summary>
+        /// Returns a string similar to '<#= Ellipsis(message.Value, 50) #>'
+        /// </summary>
+        public static string <#= message.Id #> => MonoPoResourceManager.GetString("<#= message.Id #>");
+
+        /// <summary>
+        /// Returns a string similar to '<#= Ellipsis(message.Value, 50) #>'
+        /// </summary>
+        public static string <#= message.Id #>_(object parameter)
+        {
+            return MonoPoResourceManager.GetString("<#= message.Id #>", parameter);
+        }
+
+<#
+            }
+            var pluralPoEntry = message as PluralPoEntry;
+            if( pluralPoEntry != null )
+            {
+#>
+        /// <summary>
+        /// Returns a string similar to '<#= Ellipsis(pluralPoEntry[1], 50) #>'
+        /// </summary>
+        public static string <#= message.Id #>(int count, object parameter = null)
+        {
+            return MonoPoResourceManager.GetStringPlur("<#= message.Id #>", count, parameter);
+        }
+
+<#
+            }
+            var ctxPoEntry = message as ContextualPoEntry;
+            if( ctxPoEntry != null )
+            {
+
+                if(cxtMessages.Contains(message.Id)) continue;
+                cxtMessages.Add(message.Id);
+#>
+        /// <summary>
+        /// Returns a string similar to '<#= Ellipsis(message.Value, 50) #>'
+        /// </summary>
+        public static string <#= message.Id #>(string context, object parameter = null)
+        {
+            return MonoPoResourceManager.GetStringCtxt("<#= message.Id #>", context, parameter);
+        }
+
+<#
+            }
+            var ctxPluralPoEntry = message as ContextualPluralPoEntry;
+            if( ctxPluralPoEntry != null )
+            {
+
+                if(cxtPluralMessages.Contains(message.Id)) continue;
+                cxtPluralMessages.Add(message.Id);
+#>
+        /// <summary>
+        /// Returns a string similar to '<#= Ellipsis(message.Value, 50) #>'
+        /// </summary>
+        public static string <#= message.Id #>(int count, string context, object parameter = null)
+        {
+            return MonoPoResourceManager.GetStringPlurCtxt("<#= message.Id #>", count, context, parameter);
+        }
+
+<#
+            }
+        }
+    }
+#>
+    }
+}
+<#+
+static string Ellipsis(string s, int maxLength)
+{
+    if (s.Length <= maxLength)
+        return s;
+    return s.Substring(0, maxLength) + "...";
+}
+
+Project FindProject()
+{
+    IServiceProvider serviceProvider = (IServiceProvider)Host;
+    DTE dte = (DTE)serviceProvider.GetService(typeof(DTE));
+    string templateFileName = Host.TemplateFile;
+    var item = dte.Solution.FindProjectItem(Host.TemplateFile);
+    if (item != null && item.ContainingProject != null)
+        return item.ContainingProject;
+    throw new InvalidOperationException("Can't find project name");
+}
+
+#>

@@ -1,0 +1,36 @@
+﻿# Localization Master.
+# Copyright (C) 2016
+# This file is distributed under the same license as the PACKAGE package.
+# Justin Marshall <j.marshall@oodrive.fr>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2016-02-23 09:42+0100\n"
+"Last-Translator: Justin Marshall <j.marshall@oodrive.fr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.7\n"
+
+msgid "HelloUser"
+msgstr "Hello {Name}!"
+
+msgid "NbrOfFiles"
+msgid_plural "NbrOfFilesPlural"
+msgstr[0] "{Occurence} file"
+msgstr[1] "{Occurence} files"
+
+msgctxt "whole world"
+msgid "HelloWorld"
+msgstr "Hello everyone!"
+
+msgctxt "whole company"
+msgid "HelloWorld"
+msgstr "Hello Oodrive!"

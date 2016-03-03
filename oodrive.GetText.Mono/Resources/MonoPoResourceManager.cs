@@ -5,7 +5,7 @@ using NString;
 using Oodrive.GetText.Core;
 using Oodrive.GetText.Core.Resources;
 
-namespace oodrive.GetText.Mono.Resources
+namespace Oodrive.GetText.Mono.Resources
 {
     public class MonoPoResourceManager : PoBasedResourceManager
     {
@@ -112,6 +112,13 @@ namespace oodrive.GetText.Mono.Resources
             var result = base.GetString(key, Language);
 
             return !result.IsNullOrEmpty() ? result : $"[{key}]";
+        }
+
+        public string GetString(string key, object parameters)
+        {
+            var result = GetString(key) ?? $"[{key}]";
+
+            return parameters == null ? result : StringTemplate.Format(result , parameters);
         }
     }
 }

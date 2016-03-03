@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Oodrive.GetText.Core.Po
 {
-    class PluralPoEntry : PoEntryBase
+    public class PluralPoEntry : PoEntryBase
     {
         public PluralPoEntry(string id, string pluralId, int nPlurals, IDictionary<int,string> traductions, IEnumerable<string> comments, IEnumerable<string> translatorComments, bool isFuzzy = false, bool isObselete = false) : base(id, isFuzzy, isObselete, comments, translatorComments)
         {
