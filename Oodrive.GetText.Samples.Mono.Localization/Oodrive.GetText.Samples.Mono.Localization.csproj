@@ -63,9 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\Strings.ja.po" />
-    <None Include="Resources\Strings.fr.po" />
-    <None Include="Resources\Strings.po" />
+    <EmbeddedResource Include="Resources\ja.Strings.po" />
+    <EmbeddedResource Include="Resources\fr.Strings.po" />
+    <EmbeddedResource Include="Resources\Strings.po" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Strings.tt">

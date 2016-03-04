@@ -75,16 +75,16 @@ namespace Oodrive.GetText.Mono.Extensions
 
             object tempValue = string.Empty;
 
-            if (Occurence.HasValue && Context.IsNullOrEmpty())
+            if (!Occurence.HasValue && Context.IsNullOrEmpty())
                 tempValue = resourceManager.GetString(resourceKey);
 
-            if (!Occurence.HasValue && Context.IsNullOrEmpty())
+            if (Occurence.HasValue && Context.IsNullOrEmpty())
                 tempValue = resourceManager.GetStringPlur(resourceKey, Occurence ?? -1);
 
-            if (Occurence.HasValue && !Context.IsNullOrEmpty())
+            if (!Occurence.HasValue && !Context.IsNullOrEmpty())
                 tempValue = resourceManager.GetStringCtxt(resourceKey, Context);
 
-            if (!Occurence.HasValue && !Context.IsNullOrEmpty())
+            if (Occurence.HasValue && !Context.IsNullOrEmpty())
                 tempValue = resourceManager.GetStringPlurCtxt(resourceKey, Occurence ?? -1, Context);
 
             var value = Converter?.Convert(tempValue, typeof(string), null, null).ToString() ?? tempValue;

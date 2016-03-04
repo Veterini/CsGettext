@@ -1,5 +1,7 @@
 ﻿using System.Collections.Specialized;
 using System.Configuration;
+using System.Globalization;
+using System.IO;
 using System.Reflection;
 using NString;
 using Oodrive.GetText.Core;
@@ -11,7 +13,7 @@ namespace Oodrive.GetText.Mono.Resources
     {
         #region Defaults
 
-        private const string DefaultFileFormat = "{{resource}}.{{culture}}.po";
+        private const string DefaultFileFormat = "{{culture}}.{{resource}}.po";
         private const string DefaultPath = "Resources";
 
         #endregion
@@ -119,6 +121,58 @@ namespace Oodrive.GetText.Mono.Resources
             var result = GetString(key) ?? $"[{key}]";
 
             return parameters == null ? result : StringTemplate.Format(result , parameters);
+        }
+
+        protected override Stream FindResourceFileStream(CultureInfo culture)
+        {
+            var resourceFileName = GetFileResourceName(culture);
+
+            var loc = FindResourceFileStream(resourceFileName);
+            if (loc != null)
+                return loc;
+
+            resourceFileName = GetInvariantFileResourceName();
+            return FindResourceFileStream(resourceFileName);
+        }
+
+        private string GetInvariantFileResourceName()
+        {
+            var baseKey = "{{resource}}.po".Replace("{{resource}}", BaseNameField);
+
+            if (!ResourcesPath.IsNullOrEmpty())
+                baseKey = ResourcesPath + "." + baseKey;
+
+            if (LocalizationAssembly != null)
+            {
+                baseKey = LocalizationAssembly.GetName().Name + "." + baseKey;
+            }
+
+            return baseKey;
+        }
+
+        private Stream FindResourceFileStream(string resourceFileName)
+        {
+            Stream loc;
+            if (LocalizationAssembly != null)
+            {
+                loc = LocalizationAssembly.GetManifestResourceStream(resourceFileName);
+
+                if (loc != null) return loc;
+            }
+
+            var entryAssembly = Assembly.GetEntryAssembly();
+            // Try the entry assembly dir
+            loc = entryAssembly?.GetManifestResourceStream(resourceFileName);
+
+            if (loc != null)
+                return loc;
+
+            var executingAssembly = Assembly.GetExecutingAssembly();
+
+            // Else try the executing assembly dir
+            loc = executingAssembly.GetManifestResourceStream(resourceFileName);
+
+            return loc;
         }
     }
 }

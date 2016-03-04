@@ -49,7 +49,7 @@ namespace Oodrive.GetText.Core.Resources
 
         public sealed override bool IgnoreCase { get; set; }
 
-        private Assembly LocalizationAssembly { get; }
+        protected Assembly LocalizationAssembly { get; }
 
         private IDictionary<CultureInfo, ResourceSet> InternalResourceSets { get; }
 
@@ -114,7 +114,7 @@ namespace Oodrive.GetText.Core.Resources
             InternalResourceSets = new Dictionary<CultureInfo, ResourceSet>();
         }
 
-        private string GetFileResourceName(CultureInfo culture)
+        protected string GetFileResourceName(CultureInfo culture)
         {
             var baseKey = ResourceFormat.Replace("{{culture}}", culture.Name).Replace("{{resource}}", BaseNameField);
 
@@ -172,7 +172,7 @@ namespace Oodrive.GetText.Core.Resources
             return set;
         }
 
-        private Stream FindResourceFileStream(CultureInfo culture)
+        protected virtual Stream FindResourceFileStream(CultureInfo culture)
         {
             var resourceFileName = GetFileResourceName(culture);
 
