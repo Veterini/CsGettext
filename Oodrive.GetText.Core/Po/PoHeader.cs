@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using NString;
@@ -9,10 +10,13 @@ namespace Oodrive.GetText.Core.Po
 {
     public class PoHeader : PoEntryBase
     {
-        public PoHeader(bool isFuzzy, int nplurals, string pluralExpression) : base(string.Empty, isFuzzy, false, Enumerable.Empty<string>(), Enumerable.Empty<string>())
+        public CultureInfo Language { get; }
+
+        public PoHeader(bool isFuzzy, int nplurals, string pluralExpression, CultureInfo language) : base(string.Empty, isFuzzy, false, Enumerable.Empty<string>(), Enumerable.Empty<string>())
         {
             NPlurals = nplurals;
             SetPluralFormSelector(pluralExpression);
+            Language = language;
         }
 
         private void SetPluralFormSelector(string pluralExpression)

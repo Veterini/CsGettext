@@ -61,12 +61,15 @@
     <Compile Include="Po\ContextualPluralPoEntry.cs" />
     <Compile Include="Po\ContextualPoEntry.cs" />
     <Compile Include="Po\IPoEntry.cs" />
+    <Compile Include="Po\IPoEntryWriter.cs" />
     <Compile Include="Po\PluralPoEntry.cs" />
     <Compile Include="Po\PluralRuleHolder.cs" />
     <Compile Include="Po\PoEntry.cs" />
     <Compile Include="Po\PoEntryBase.cs" />
     <Compile Include="Po\PoHeader.cs" />
+    <Compile Include="Po\PoHeaderWriter.cs" />
     <Compile Include="Po\PoParser.cs" />
+    <Compile Include="Po\PoWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\PoBasedResourceManager.cs" />
     <Compile Include="Resources\PoResourceReader.cs" />

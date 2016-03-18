@@ -13,7 +13,7 @@ namespace Oodrive.GetText.Samples.Mono
         {
             TextResources.AddResourceManager("mono", Localization.Strings.MonoPoResourceManager);
             TextResources.DefaultResourceManagerKey = "mono";
-            Localization.Strings.Language = CultureInfo.GetCultureInfo("en");
+            Localization.Strings.Language = CultureInfo.GetCultureInfo("ja");
         }
     }
 }

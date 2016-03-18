@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Oodrive.GetText.Core.Po
             _messages = new List<IPoEntry>();
         }
 
-        public void Parse()
+        public PoParser Parse()
         {
 
             SetState(ParserState.WaitingKey);
@@ -106,11 +107,16 @@ namespace Oodrive.GetText.Core.Po
                                 break;
                         }
                         break;
+                    case LineType.LanguageDeclaration:
+                        SetLanguageDeclaration(CleanString(parsingResult.Value));
+                        break;
                     case LineType.PluralFormRule:
                         SetPluralFormRule(isFuzzy, CleanString(parsingResult.Value));
                         break;
                 }
             }
+
+            return this;
         }
 
         private void SetValuesForKeys(string id, bool fuzzy, StringBuilder currentPluralKey, StringBuilder currentContext, StringBuilder currentValue, IDictionary<int, StringBuilder> pluralValues)
@@ -125,7 +131,7 @@ namespace Oodrive.GetText.Core.Po
             if (!hasContext && !hasPlural)
             {
                 var message = new PoEntry(id, value, fuzzy);
-                _messages.Add(message);
+                if(!id.IsNullOrEmpty()) _messages.Add(message);
                 return;
             }
 
@@ -149,6 +155,10 @@ namespace Oodrive.GetText.Core.Po
                 _messages.Add(message);
             }
         }
+        private void SetLanguageDeclaration(string language)
+        {
+            _language = language.TrimEnd('\n');
+        }
 
         private void SetPluralFormRule(bool isFuzzy, string rule)
         {
@@ -165,7 +175,7 @@ namespace Oodrive.GetText.Core.Po
                 pluralForm = rule.Substring(firstIndex + 1, secondIndex - firstIndex - 1).Trim();
             }
 
-            Header = new PoHeader(isFuzzy,nplurals,pluralForm);
+            Header = new PoHeader(isFuzzy,nplurals,pluralForm, CultureInfo.GetCultureInfo(_language));
         }
 
         private static LineParsingResult ParseLine(string line)
@@ -195,7 +205,13 @@ namespace Oodrive.GetText.Core.Po
             if (line[0] == '"')
             {
                 value = line[line.Length - 1] == '"' ? line.Substring(1, line.Length - 2) : line.Substring(1, line.Length - 1);
-                return value.StartsWith("Plural-Forms:") ? new LineParsingResult(LineType.PluralFormRule, value.Substring(13).Trim()) : new LineParsingResult(LineType.Multiline, value);
+                if (value.StartsWith("Plural-Forms:"))
+                    return new LineParsingResult(LineType.PluralFormRule, value.Substring("Plural-Forms:".Length).Trim());
+
+                if (value.StartsWith("Language:"))
+                    return new LineParsingResult(LineType.LanguageDeclaration, value.Substring("Language:".Length).Trim());
+
+                return new LineParsingResult(LineType.Multiline, value);
             }
 
             value = ExtractLineValue(line);
@@ -253,6 +269,7 @@ namespace Oodrive.GetText.Core.Po
         } 
 
         private readonly List<IPoEntry> _messages;
+        private string _language = "en-us";
         public IEnumerable<IPoEntry> Messages => _messages;
 
         public PoHeader Header { get; private set; }
@@ -286,7 +303,8 @@ namespace Oodrive.GetText.Core.Po
             Flag,
             Obsolete,
             PreviousId,
-            PluralFormRule
+            PluralFormRule,
+            LanguageDeclaration
         }
 
         private enum ParserState

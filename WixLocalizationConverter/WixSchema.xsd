@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema id="WixSchema"
+           targetNamespace="http://tempuri.org/WixSchema.xsd"
+           elementFormDefault="qualified"
+           xmlns="http://tempuri.org/WixSchema.xsd"
+           xmlns:mstns="http://tempuri.org/WixSchema.xsd"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="WixLocalization" type="WixLocalizationNode" />
+
+    <xs:complexType name="WixLocalizationNode">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="String" type="StringNode" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:choice>
+        <xs:attribute name="Culture" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="StringNode">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="Id" type="xs:string" use="required" >
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+</xs:schema>
