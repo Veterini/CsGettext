@@ -68,9 +68,9 @@ msgstr """"
             Writer.WriteLine();
         }
 
-        public int PluralRule { get; set; } = 1;
+        public int NPlurals { get; set; } = 1;
 
-        public string NPlurals { get; set; } = "(n != 1)";
+        public string PluralRule { get; set; } = "(n != 1)";
     }
 
     public class PoEntryWriter : PoEntryWriterBase

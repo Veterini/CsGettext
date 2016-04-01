@@ -53,6 +53,9 @@
     <Compile Include="Po2WxlConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WixSchema.cs">
+      <DependentUpon>WixSchema.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Wxl2PoConverter.cs" />
   </ItemGroup>
   <ItemGroup>
