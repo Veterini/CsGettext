@@ -87,7 +87,7 @@ namespace Oodrive.GetText.Mono.Extensions
             if (Occurence.HasValue && !Context.IsNullOrEmpty())
                 tempValue = resourceManager.GetStringPlurCtxt(resourceKey, Occurence ?? -1, Context);
 
-            var value = Converter?.Convert(tempValue, typeof(string), null, null).ToString() ?? tempValue;
+            var value = Converter.Convert(tempValue, typeof(string), null, null)?.ToString() ?? tempValue;
 
             return value ?? GetBaseText(resourceKey);
         }
